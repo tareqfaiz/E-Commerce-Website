@@ -2,25 +2,37 @@ import React, { useState } from 'react';
 import API, { loginUser } from '../services/api';
 import { GoogleLogin } from 'react-google-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Toast from '../components/Toast';
 
 function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
   const [googleLoginAttempted, setGoogleLoginAttempted] = useState(false);
+  const authContext = useAuth();
+  const navigate = useNavigate();
+
+  const showToast = (message) => {
+    setToastMessage(message);
+  };
 
   const handleLogin = async () => {
     setError('');
-    if (!username || !password) {
+    if (!email || !password) {
       setError('Please fill all fields');
       return;
     }
-    const res = await loginUser({ email: username, password });
+    const res = await loginUser({ email, password });
     if (res.success) {
-      localStorage.setItem('token', 'fake-token');
-      alert('Logged in');
+      authContext.login(res.user);
+      localStorage.setItem('token', res.user.token);
+      showToast('Logged in');
+      navigate('/products');
     } else {
-      alert('Login failed');
+      showToast('Login failed');
     }
   };
 
@@ -28,7 +40,7 @@ function Login() {
     setGoogleLoginAttempted(false);
     console.log('Google login success:', response);
     // TODO: Send token to backend for verification and login
-    alert('Google login successful (token received)');
+    showToast('Google login successful (token received)');
   };
 
   const handleGoogleFailure = (response) => {
@@ -40,7 +52,7 @@ function Login() {
       return;
     }
     if (googleLoginAttempted) {
-      alert('Google login failed');
+      showToast('Google login failed');
     }
   };
 
@@ -48,16 +60,16 @@ function Login() {
     console.log('Facebook login response:', response);
     // TODO: Send token to backend for verification and login
     if (response.accessToken) {
-      alert('Facebook login successful (token received)');
+      showToast('Facebook login successful (token received)');
     } else {
-      alert('Facebook login failed');
+      showToast('Facebook login failed');
     }
   };
 
   return (
     <div className="form-container">
       {error && <p className="form-error">{error}</p>}
-      <input className="form-input" value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" />
+      <input className="form-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
       <input className="form-input" value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Password" />
       <button className="form-button" onClick={handleLogin}>Login</button>
       <div className="social-login">
@@ -86,6 +98,7 @@ function Login() {
           )}
         />
       </div>
+      <Toast message={toastMessage} onClose={() => setToastMessage('')} />
     </div>
   );
 }

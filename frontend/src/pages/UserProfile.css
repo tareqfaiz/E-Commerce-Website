@@ -1,0 +1,80 @@
+.user-profile {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.user-profile h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.user-profile form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-profile label {
+  font-weight: 600;
+  color: #555;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.user-profile input[type="text"],
+.user-profile input[type="email"] {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.user-profile input[readonly] {
+  background-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.user-profile button[type="submit"] {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.user-profile button[type="submit"]:hover {
+  background-color: #2563eb;
+}
+
+.user-profile button {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.user-profile button:hover {
+  background-color: #dc2626;
+}
+
+.user-profile p {
+  color: #dc2626;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}

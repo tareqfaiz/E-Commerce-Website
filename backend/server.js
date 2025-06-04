@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const newsletterRoutes = require('./routes/newsletterRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -14,9 +17,15 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+const userRoutes = require('./routes/userRoutes');
+
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/newsletter', newsletterRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/users', userRoutes);
 
 // Root route to handle GET /
 app.get('/', (req, res) => {

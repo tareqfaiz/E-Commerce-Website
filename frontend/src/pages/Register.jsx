@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import API, { registerUser } from '../services/api';
 import { GoogleLogin } from 'react-google-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
   const [username, setUsername] = useState('');
@@ -10,6 +12,8 @@ function Register() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [googleRegisterAttempted, setGoogleRegisterAttempted] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
     setError('');
@@ -21,11 +25,14 @@ function Register() {
       setError('Passwords do not match');
       return;
     }
-    const res = await registerUser({ username, password, email });
+    const res = await registerUser({ name: username, password, email });
     if (res.success) {
+      login(res.user);
+      localStorage.setItem('token', res.user.token);
       alert('Registered successfully');
+      navigate('/products');
     } else {
-      alert('Registration failed');
+      alert('Registration failed: ' + (res.error || 'Unknown error'));
     }
   };
 

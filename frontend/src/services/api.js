@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://fakestoreapi.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const API = axios.create({
   baseURL: API_BASE_URL,
@@ -9,11 +9,19 @@ const API = axios.create({
 export default API;
 
 export async function loginUser(credentials) {
-  // Fake Store API does not support login, so simulate success
-  return { success: true, user: { email: credentials.email } };
+  try {
+    const response = await API.post('/auth/login', credentials);
+    return { success: true, user: response.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
 }
 
 export async function registerUser(data) {
-  // Fake Store API does not support registration, so simulate success
-  return { success: true, user: { email: data.email } };
+  try {
+    const response = await API.post('/auth/register', data);
+    return { success: true, user: response.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
 }

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { usePage } from '../context/PageContext';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const logoUrl = 'https://cdn-icons-png.flaticon.com/512/263/263142.png';
@@ -13,9 +14,10 @@ function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCartPreviewOpen, setIsCartPreviewOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 480);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setIsSmallScreen(window.innerWidth <= 480);
     };
@@ -38,6 +40,11 @@ function Navbar() {
     } else {
       navigate('/products?page=1');
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
@@ -189,42 +196,85 @@ function Navbar() {
           >
             Products
           </Link>
-          <Link
-            to="/login"
-            className="navbar-link"
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              fontWeight: '600',
-              textDecoration: 'none',
-              transition: 'background-color 0.3s ease',
-              fontSize: '14px',
-            }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
-          >
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="navbar-link"
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              fontWeight: '600',
-              textDecoration: 'none',
-              transition: 'background-color 0.3s ease',
-              fontSize: '14px',
-            }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
-          >
-            Register
-          </Link>
+          {!user ? (
+            <>
+              <Link
+                to="/login"
+                className="navbar-link"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.3s ease',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="navbar-link"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.3s ease',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/profile"
+                className="navbar-link"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.3s ease',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="navbar-link"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#dc2626'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#ef4444'}
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
         <Link
           to="/cart"
@@ -295,22 +345,55 @@ function Navbar() {
           >
             Products
           </Link>
-          <Link
-            to="/login"
-            className="navbar-mobile-link"
-            onClick={() => setIsMenuOpen(false)}
-            style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
-          >
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="navbar-mobile-link"
-            onClick={() => setIsMenuOpen(false)}
-            style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
-          >
-            Register
-          </Link>
+          {!user ? (
+            <>
+              <Link
+                to="/login"
+                className="navbar-mobile-link"
+                onClick={() => setIsMenuOpen(false)}
+                style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="navbar-mobile-link"
+                onClick={() => setIsMenuOpen(false)}
+                style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/profile"
+                className="navbar-mobile-link"
+                onClick={() => setIsMenuOpen(false)}
+                style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="navbar-mobile-link"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#dc2626'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#ef4444'}
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       )}
     </nav>
