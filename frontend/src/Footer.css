@@ -1,0 +1,139 @@
+/* Footer base styles */
+.footer {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 0 1rem;
+  justify-items: stretch;
+  align-items: start;
+  box-sizing: border-box;
+}
+
+.footer-section {
+  min-width: 0;
+  margin-bottom: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+
+.footer-heading {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.footer-form {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 320px;
+}
+
+.footer-input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-size: 1rem;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.footer-button {
+  background-color: #1d4ed8;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.footer-button:hover {
+  background-color: #2563eb;
+}
+
+.footer-social-icons {
+  display: flex;
+  gap: 1rem;
+}
+
+.footer-social-link {
+  color: #ffffff;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  transition: color 0.3s ease;
+}
+
+.footer-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.footer-text {
+  line-height: 1.5;
+}
+
+.footer-copyRight {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #dbeafe;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive footer styles */
+@media (max-width: 768px) {
+  .footer-container {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 0.5rem;
+  }
+  .footer-section {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 1rem 0.5rem;
+    overflow: hidden;
+  }
+  .footer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    padding: 0 0.5rem;
+  }
+  .footer-section {
+    margin-bottom: 1rem;
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  .footer-copyRight {
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    text-align: center;
+    width: 100%;
+  }
+}
