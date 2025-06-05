@@ -57,12 +57,53 @@ const seedData = async () => {
 
     const adminUser = createdUsers.find(user => user.isAdmin);
 
+    const regularUser = createdUsers.find(user => !user.isAdmin);
+
     const sampleProducts = products.map(product => {
       return { ...product, user: adminUser._id };
     });
 
-    await Product.insertMany(sampleProducts);
+    const createdProducts = await Product.insertMany(sampleProducts);
     console.log('Products seeded');
+
+    // Add sample orders
+    const orders = [
+      {
+        user: regularUser._id,
+        orderItems: [
+          {
+            product: createdProducts[0]._id,
+            name: createdProducts[0].title,
+            qty: 2,
+            price: createdProducts[0].price,
+            image: createdProducts[0].image,
+          },
+        ],
+        shippingAddress: {
+          address: '123 Main St',
+          city: 'Cityville',
+          postalCode: '12345',
+          country: 'Countryland',
+        },
+        paymentMethod: 'PayPal',
+        paymentResult: {
+          id: 'PAYID12345',
+          status: 'Completed',
+          update_time: new Date(),
+          email_address: 'john@example.com',
+        },
+        taxPrice: 5.0,
+        shippingPrice: 10.0,
+        totalPrice: 74.98,
+        isPaid: true,
+        paidAt: new Date(),
+        isDelivered: false,
+        deliveredAt: null,
+      },
+    ];
+
+    await Order.insertMany(orders);
+    console.log('Orders seeded');
 
     process.exit();
   } catch (error) {

@@ -255,6 +255,24 @@ function Navbar() {
               >
                 Profile
               </Link>
+              <Link
+                to="/order-history"
+                className="navbar-link"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  fontWeight: '600',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.3s ease',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+              >
+                Order History
+              </Link>
               <button
                 onClick={handleLogout}
                 className="navbar-link"

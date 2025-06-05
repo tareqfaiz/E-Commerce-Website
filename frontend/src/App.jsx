@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import AdminProductForm from './pages/AdminProductForm';
@@ -12,6 +12,8 @@ import { CartProvider } from './context/CartContext';
 import { PageProvider } from './context/PageContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+
+const OrderHistory = lazy(() => import('./pages/OrderHistory'));
 
 function App() {
   return (
@@ -33,6 +35,13 @@ function App() {
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <UserProfile />
+                </ProtectedRoute>
+              } />
+              <Route path="/order-history" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <OrderHistory />
+                  </Suspense>
                 </ProtectedRoute>
               } />
             </Routes>
