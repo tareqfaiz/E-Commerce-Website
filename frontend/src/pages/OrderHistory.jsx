@@ -48,19 +48,19 @@ function OrderHistory() {
       <table className="order-history-table">
         <thead>
           <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Items</th>
-            <th>Total Price</th>
-            <th>Paid</th>
-            <th>Delivered</th>
-          </tr>
-        </thead>
-        <tbody>
+              <th>Order ID</th>
+              <th>Date & Time</th>
+              <th>Items</th>
+              <th>Total Price</th>
+              <th>Paid</th>
+              <th>Delivered</th>
+            </tr>
+          </thead>
+          <tbody>
           {orders.map(order => (
             <tr key={order._id} onClick={() => navigate(`/order/${order._id}`)} className="order-row">
               <td>{order._id}</td>
-              <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+              <td>{new Date(order.createdAt).toLocaleString()}</td>
               <td>
                 <div className="order-items-list">
                   {order.orderItems.map(item => (
