@@ -73,6 +73,20 @@ function UserProfile() {
     <div className="user-profile">
       <h2>Your Profile</h2>
       {message && <p>{message}</p>}
+
+      {/* New read-only display of full customer information */}
+      {user && (
+        <div className="profile-display" style={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+          <h3>Customer Information</h3>
+          <p><strong>Customer ID:</strong> {user._id}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Name:</strong> {user.name}</p>
+          <p><strong>Address:</strong> {user.address || 'Not provided'}</p>
+          <p><strong>Phone:</strong> {user.phone || 'Not provided'}</p>
+        </div>
+      )}
+
+      {/* Existing update form */}
       <form onSubmit={handleSubmit}>
         <label>
           Customer ID (read-only):

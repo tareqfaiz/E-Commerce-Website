@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+import API from '../services/api';
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -8,9 +10,39 @@ export const AuthProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!user);
+  }, [user]);
+
+  const login = async (userData) => {
+    setLoading(true);
+    try {
+      if (userData) {
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+      const token = localStorage.getItem('token');
+      if (token) {
+        const response = await API.get('/users/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const freshUserData = response.data;
+        setUser(freshUserData);
+        localStorage.setItem('user', JSON.stringify(freshUserData));
+      } else {
+        // If no token, clear user state
+        setUser(null);
+        localStorage.removeItem('user');
+      }
+    } catch (error) {
+      // On error, clear user state
+      setUser(null);
+      localStorage.removeItem('user');
+    }
+    setLoading(false);
   };
 
   const logout = () => {
@@ -24,7 +56,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );

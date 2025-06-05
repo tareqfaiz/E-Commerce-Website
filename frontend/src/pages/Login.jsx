@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import API, { loginUser } from '../services/api';
 import { GoogleLogin } from 'react-google-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
@@ -15,6 +15,12 @@ function Login() {
   const authContext = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (authContext.isAuthenticated && !authContext.loading) {
+      navigate('/products');
+    }
+  }, [authContext.isAuthenticated, authContext.loading, navigate]);
+
   const showToast = (message) => {
     setToastMessage(message);
   };
@@ -27,9 +33,20 @@ function Login() {
     }
     const res = await loginUser({ email, password });
     if (res.success) {
-      authContext.login(res.user);
       localStorage.setItem('token', res.user.token);
+      await authContext.login(res.user);
       showToast('Logged in');
+      const waitForAuth = () => {
+        return new Promise((resolve) => {
+          const interval = setInterval(() => {
+            if (authContext.isAuthenticated && !authContext.loading) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 50);
+        });
+      };
+      await waitForAuth();
       navigate('/products');
     } else {
       showToast('Login failed');
