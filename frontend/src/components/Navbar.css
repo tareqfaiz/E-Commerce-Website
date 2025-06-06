@@ -7,6 +7,17 @@
     margin-right: 8px !important;
   }
 
+  /* Fix white space at bottom of navbar */
+  nav.navbar {
+    height: auto !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .navbar-container {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
   /* Make shop name smaller and visible */
   .navbar-shop-name {
     display: inline !important;
