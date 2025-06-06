@@ -17,6 +17,7 @@ import AdminOrderManagement from './pages/AdminOrderManagement';
 import AdminSubscriptionManagement from './pages/AdminSubscriptionManagement';
 import AdminDeliveryManagement from './pages/AdminDeliveryManagement';
 import AdminDatabaseManagement from './pages/AdminDatabaseManagement';
+import AdminProductEdit from './pages/AdminProductEdit';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
 import { PageProvider } from './context/PageContext';
@@ -51,6 +52,11 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin/products/new" element={<AdminProductForm />} />
+              <Route path="/admin/products/edit/:id" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminProductEdit />
+                </ProtectedRoute>
+              } />
               <Route path="/admin/products" element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminProductManagement />
