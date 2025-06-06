@@ -6,6 +6,7 @@ const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
+const adminNewsletterRoutes = require('./routes/adminNewsletterRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 require('dotenv').config();
 

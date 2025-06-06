@@ -47,3 +47,27 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.adminLogin = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user || !user.isAdmin) {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+    const token = generateToken(user._id);
+    res.json({ 
+      _id: user._id, 
+      name: user.name, 
+      email: user.email, 
+      isAdmin: user.isAdmin,
+      token 
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};

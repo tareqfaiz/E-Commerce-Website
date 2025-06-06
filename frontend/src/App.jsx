@@ -4,6 +4,8 @@ import Home from './pages/Home';
 import AdminProductForm from './pages/AdminProductForm';
 import Cart from './pages/Cart';
 import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 import Products from './pages/Products';
 import UserProfile from './pages/UserProfile';
@@ -42,6 +44,12 @@ function App() {
                   <Suspense fallback={<div>Loading...</div>}>
                     <OrderHistory />
                   </Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } />
             </Routes>

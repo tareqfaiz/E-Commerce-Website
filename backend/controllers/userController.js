@@ -42,6 +42,7 @@ exports.getProfile = async (req, res) => {
       email: user.email,
       address: user.address,
       phone: user.phone,
+      isAdmin: user.isAdmin,
     });
   } catch (error) {
     console.error('Error fetching profile:', error);
