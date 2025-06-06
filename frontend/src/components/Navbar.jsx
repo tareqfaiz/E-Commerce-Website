@@ -55,7 +55,7 @@ function Navbar() {
         top: 0,
         left: 0,
         right: 0,
-        height: '64px',
+        minHeight: '56px',
         backgroundColor: '#3b82f6',
         zIndex: 1000,
         display: 'flex',

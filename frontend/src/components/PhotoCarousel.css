@@ -95,6 +95,8 @@
 @media (max-width: 480px) {
   .photo-carousel {
     height: 250px;
+    margin-top: 0 !important;
+    margin-bottom: 20px;
   }
   
   .carousel-title {

@@ -43,7 +43,7 @@ function App() {
               <Route path="*" element={<Navbar />} />
             </Routes>
           </header>
-          <main className="app-main" style={{ flexGrow: 1, paddingBottom: '6rem', paddingTop: '64px' }}>
+          <main className="app-main" style={{ flexGrow: 1, paddingBottom: '6rem', paddingTop: window.innerWidth <= 480 ? '56px' : '64px' }}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
