@@ -4,8 +4,7 @@ import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import AdminNavbar from '../components/AdminNavbar';
 import AdminFooter from '../components/AdminFooter';
-/* Removed missing CSS import */
-// import './AdminCustomerManagement.css';
+import './AdminCustomerManagement.css';
 
 function AdminCustomerManagement() {
   const { user, isAuthenticated } = useAuth();

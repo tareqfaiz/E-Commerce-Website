@@ -36,8 +36,9 @@ function App() {
           <header className="app-header">
             {/* Conditionally render Navbar based on route */}
             <Routes>
-              {/* Render AdminNavbar for admin routes */}
+              {/* Render AdminNavbar for admin routes except admin login */}
               <Route path="/admin/*" element={<AdminNavbar />} />
+              <Route path="/admin/login" element={null} />
               {/* Render Customer Navbar for other routes */}
               <Route path="*" element={<Navbar />} />
             </Routes>
@@ -122,8 +123,9 @@ function App() {
           </main>
           {/* Conditionally render Footer based on route */}
           <Routes>
-            {/* Render AdminFooter for admin routes */}
+            {/* Render AdminFooter for admin routes except admin login */}
             <Route path="/admin/*" element={<AdminFooter />} />
+            <Route path="/admin/login" element={null} />
             {/* Render Customer Footer for other routes */}
             <Route path="*" element={<Footer />} />
           </Routes>

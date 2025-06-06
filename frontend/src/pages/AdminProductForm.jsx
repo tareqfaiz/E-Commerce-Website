@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import API from '../services/api';
 import AdminNavbar from '../components/AdminNavbar';
 import AdminFooter from '../components/AdminFooter';
+import './AdminProductForm.css';
 
 function AdminProductForm() {
   const [title, setTitle] = useState('');
@@ -65,25 +66,29 @@ function AdminProductForm() {
         <h2>Add New Product</h2>
         {message && <p>{message}</p>}
         <form onSubmit={handleSubmit}>
-          <div>
-            <label>Title:</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} required />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Title:</label>
+              <input name="title" value={title} onChange={e => setTitle(e.target.value)} required />
+            </div>
+            <div className="form-group small">
+              <label>Price:</label>
+              <input name="price" type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} required />
+            </div>
           </div>
           <div>
             <label>Description:</label>
             <textarea value={description} onChange={e => setDescription(e.target.value)} required />
           </div>
-          <div>
-            <label>Price:</label>
-            <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} required />
-          </div>
-          <div>
-            <label>Category:</label>
-            <input value={category} onChange={e => setCategory(e.target.value)} required />
-          </div>
-          <div>
-            <label>Stock:</label>
-            <input type="number" value={stock} onChange={e => setStock(e.target.value)} required />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Category:</label>
+              <input name="category" value={category} onChange={e => setCategory(e.target.value)} required />
+            </div>
+            <div className="form-group small">
+              <label>Stock:</label>
+              <input name="stock" type="number" value={stock} onChange={e => setStock(e.target.value)} required />
+            </div>
           </div>
           <div>
             <label>Image:</label>
