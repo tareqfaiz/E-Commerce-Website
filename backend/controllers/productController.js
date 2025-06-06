@@ -27,14 +27,26 @@ exports.getProductById = async (req, res) => {
 // Create new product
 exports.createProduct = async (req, res) => {
   try {
-    const { title, description, price, category, image, stock } = req.body;
+    let { title, description, price, category, image, sizes } = req.body;
+    // Filter sizes to only valid entries and convert quantity to number
+    if (Array.isArray(sizes)) {
+      sizes = sizes
+        .filter(s => s.size && s.size.trim() !== '' && s.quantity !== undefined)
+        .map(s => ({
+          size: s.size,
+          quantity: Number(s.quantity),
+        }));
+    } else {
+      sizes = [];
+    }
+    console.log('Creating product with sizes:', sizes);
     const product = new Product({
       title,
       description,
       price,
       category,
       image,
-      stock,
+      sizes,
     });
     const createdProduct = await product.save();
     res.status(201).json(createdProduct);
@@ -46,7 +58,7 @@ exports.createProduct = async (req, res) => {
 // Update product
 exports.updateProduct = async (req, res) => {
   try {
-    const { title, description, price, category, image, stock } = req.body;
+    let { title, description, price, category, image, sizes } = req.body;
     const product = await Product.findById(req.params.id);
     if (product) {
       product.title = title || product.title;
@@ -54,7 +66,15 @@ exports.updateProduct = async (req, res) => {
       product.price = price || product.price;
       product.category = category || product.category;
       product.image = image || product.image;
-      product.stock = stock || product.stock;
+      if (Array.isArray(sizes)) {
+        product.sizes = sizes
+          .filter(s => s.size && s.size.trim() !== '' && s.quantity !== undefined)
+          .map(s => ({
+            size: s.size,
+            quantity: Number(s.quantity),
+          }));
+      }
+      console.log('Updating product with sizes:', product.sizes);
       const updatedProduct = await product.save();
       res.json(updatedProduct);
     } else {

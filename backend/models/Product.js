@@ -1,5 +1,17 @@
-// Product model
 const mongoose = require('mongoose');
+
+const sizeSchema = new mongoose.Schema({
+  size: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+});
 
 const productSchema = new mongoose.Schema({
   title: {
@@ -26,11 +38,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true, // URL or path to product picture
   },
-  stock: {
-    type: Number,
-    default: 0,
-    min: 0,
-  },
+  sizes: [sizeSchema], // Array of sizes with quantities
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

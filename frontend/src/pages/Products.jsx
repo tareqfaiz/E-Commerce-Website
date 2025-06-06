@@ -6,7 +6,6 @@ import Pagination from '../components/Pagination';
 import { useLocation } from 'react-router-dom';
 
 const PRODUCTS_PER_PAGE = 6;
-const SIZES = ['S', 'M', 'L', 'XL'];
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -82,15 +81,21 @@ function Products() {
 
   // Handle add to cart with visual feedback
   const handleAddToCart = (product) => {
-    const selectedSize = selectedSizes[product.id];
+    const selectedSize = selectedSizes[product._id];
     if (!selectedSize) {
       alert('Please select a size before adding to cart.');
       return;
     }
+    // Find the size object from product.sizes
+    const sizeObj = product.sizes.find(s => s.size === selectedSize);
+    if (!sizeObj || sizeObj.quantity === 0) {
+      alert('Selected size is out of stock.');
+      return;
+    }
     addToCart(product, selectedSize);
-    setClickedButtons(prev => ({ ...prev, [product.id]: true }));
+    setClickedButtons(prev => ({ ...prev, [product._id]: true }));
     setTimeout(() => {
-      setClickedButtons(prev => ({ ...prev, [product.id]: false }));
+      setClickedButtons(prev => ({ ...prev, [product._id]: false }));
     }, 1000); // 1 second feedback
   };
 
@@ -121,37 +126,50 @@ function Products() {
             No products found matching "{searchQuery}"
           </div>
         )}
-        {paginatedProducts.map(p => (
-          <div key={p.id} className="product-card">
-            <img
-              src={p.image}
-              alt={p.title}
-              className="product-image"
-            />
-            <h2 className="product-title">{p.title}</h2>
-            <p className="product-description">{p.description}</p>
-            <p className="product-price">${p.price}</p>
-            <div className="size-selector">
-              <label htmlFor={`size-select-${p.id}`}>Size:</label>
-              <select
-                id={`size-select-${p.id}`}
-                value={selectedSizes[p.id] || ''}
-                onChange={e => handleSizeChange(p.id, e.target.value)}
+        {paginatedProducts.map(p => {
+          const sizes = p.sizes || [];
+          const availableSizes = sizes.filter(s => s.quantity > 0);
+          const isOutOfStock = availableSizes.length === 0;
+          return (
+            <div key={p._id} className="product-card">
+              <img
+                src={p.image && (p.image.startsWith('http') ? p.image : `${window.location.origin}${p.image}`)}
+                alt={p.title}
+                className="product-image"
+              />
+              <h2 className="product-title">{p.title}</h2>
+              <p className="product-description">{p.description}</p>
+              <p className="product-price">${p.price}</p>
+              <div className="size-selector">
+                <label htmlFor={`size-select-${p._id}`}>Size:</label>
+                <select
+                  id={`size-select-${p._id}`}
+                  value={selectedSizes[p._id] || ''}
+                  onChange={e => handleSizeChange(p._id, e.target.value)}
+                  disabled={isOutOfStock}
+                >
+                  <option value="" disabled>{isOutOfStock ? 'Out of Stock' : 'Select size'}</option>
+                  {sizes.map(size => (
+                    <option
+                      key={size.size}
+                      value={size.size}
+                      disabled={size.quantity === 0}
+                    >
+                      {size.size} {size.quantity === 0 ? '(Out of Stock)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => handleAddToCart(p)}
+                className={`add-to-cart-button ${clickedButtons[p._id] ? 'clicked' : ''}`}
+                disabled={isOutOfStock}
               >
-                <option value="" disabled>Select size</option>
-                {SIZES.map(size => (
-                  <option key={size} value={size}>{size}</option>
-                ))}
-              </select>
+                {clickedButtons[p._id] ? 'Added!' : isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+              </button>
             </div>
-            <button
-              onClick={() => handleAddToCart(p)}
-              className={`add-to-cart-button ${clickedButtons[p.id] ? 'clicked' : ''}`}
-            >
-              {clickedButtons[p.id] ? 'Added!' : 'Add to Cart'}
-            </button>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <Pagination
         currentPage={currentPage}

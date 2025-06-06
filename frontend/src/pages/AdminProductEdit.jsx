@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../api/api';
+import { useAuth } from '../context/AuthContext';
 import AdminNavbar from '../components/AdminNavbar';
 import AdminFooter from '../components/AdminFooter';
 import './AdminProductForm.css';
 
+const SIZE_OPTIONS = ['S', 'M', 'L', 'XL', 'Universal'];
+
 function AdminProductEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const token = user?.token || localStorage.getItem('token');
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [category, setCategory] = useState('');
-  const [stock, setStock] = useState('');
+  const [sizes, setSizes] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -27,7 +32,7 @@ function AdminProductEdit() {
         setDescription(data.description);
         setPrice(data.price);
         setCategory(data.category);
-        setStock(data.stock);
+        setSizes(data.sizes || []);
         setImageUrl(data.image);
       } catch (error) {
         setMessage('Error fetching product data');
@@ -38,6 +43,33 @@ function AdminProductEdit() {
 
   const handleImageChange = (e) => {
     setImageFile(e.target.files[0]);
+  };
+
+  const handleSizeToggle = (size) => {
+    const existingIndex = sizes.findIndex(s => s.size === size);
+    if (existingIndex >= 0) {
+      // Remove size
+      const newSizes = sizes.filter(s => s.size !== size);
+      setSizes(newSizes);
+    } else {
+      // Add size with default quantity '00'
+      setSizes([...sizes, { size, quantity: '00' }]);
+    }
+  };
+
+  const handleQuantityChange = (size, value) => {
+    // Format quantity as two digits
+    let formattedValue = value.toString().padStart(2, '0');
+    if (!/^\d{0,2}$/.test(formattedValue)) {
+      return; // Ignore invalid input
+    }
+    const newSizes = sizes.map(s => {
+      if (s.size === size) {
+        return { ...s, quantity: formattedValue };
+      }
+      return s;
+    });
+    setSizes(newSizes);
   };
 
   const handleSubmit = async (e) => {
@@ -53,17 +85,31 @@ function AdminProductEdit() {
         });
         updatedImageUrl = uploadRes.data.imageUrl;
       }
+      if (sizes.length === 0) {
+        setMessage('Please select at least one size.');
+        setUploading(false);
+        return;
+      }
+      // Prepare sizes with quantity as number
+      const preparedSizes = sizes.map(s => ({
+        size: s.size,
+        quantity: parseInt(s.quantity, 10),
+      }));
 
       const productData = {
         title,
         description,
         price: parseFloat(price),
         category,
-        stock: parseInt(stock),
+        sizes: preparedSizes,
         image: updatedImageUrl,
       };
 
-      await API.put(`/products/${id}`, productData);
+      await API.put(`/products/${id}`, productData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setMessage('Product updated successfully!');
       navigate('/admin/products');
     } catch (error) {
@@ -99,9 +145,35 @@ function AdminProductEdit() {
               <label>Category:</label>
               <input name="category" value={category} onChange={e => setCategory(e.target.value)} required />
             </div>
-            <div className="form-group small">
-              <label>Stock:</label>
-              <input name="stock" type="number" value={stock} onChange={e => setStock(e.target.value)} required />
+          </div>
+          <div>
+            <label>Sizes and Quantities:</label>
+            <div className="size-options">
+              {SIZE_OPTIONS.map(size => {
+                const selectedSize = sizes.find(s => s.size === size);
+                return (
+                  <div key={size} className="size-option">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={!!selectedSize}
+                        onChange={() => handleSizeToggle(size)}
+                      />
+                      {size}
+                    </label>
+                    {selectedSize && (
+                      <input
+                        type="text"
+                        maxLength="2"
+                        pattern="\d{2}"
+                        value={selectedSize.quantity}
+                        onChange={e => handleQuantityChange(size, e.target.value)}
+                        required
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div>
