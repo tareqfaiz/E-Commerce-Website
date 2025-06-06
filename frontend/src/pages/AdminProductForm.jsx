@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import API from '../services/api';
+import AdminNavbar from '../components/AdminNavbar';
+import AdminFooter from '../components/AdminFooter';
 
 function AdminProductForm() {
   const [title, setTitle] = useState('');
@@ -57,37 +59,41 @@ function AdminProductForm() {
   };
 
   return (
-    <div className="admin-product-form">
-      <h2>Add New Product</h2>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Title:</label>
-          <input value={title} onChange={e => setTitle(e.target.value)} required />
-        </div>
-        <div>
-          <label>Description:</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} required />
-        </div>
-        <div>
-          <label>Price:</label>
-          <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} required />
-        </div>
-        <div>
-          <label>Category:</label>
-          <input value={category} onChange={e => setCategory(e.target.value)} required />
-        </div>
-        <div>
-          <label>Stock:</label>
-          <input type="number" value={stock} onChange={e => setStock(e.target.value)} required />
-        </div>
-        <div>
-          <label>Image:</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} required />
-        </div>
-        <button type="submit" disabled={uploading}>{uploading ? 'Uploading...' : 'Add Product'}</button>
-      </form>
-    </div>
+    <>
+      <AdminNavbar />
+      <div className="admin-product-form">
+        <h2>Add New Product</h2>
+        {message && <p>{message}</p>}
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>Title:</label>
+            <input value={title} onChange={e => setTitle(e.target.value)} required />
+          </div>
+          <div>
+            <label>Description:</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} required />
+          </div>
+          <div>
+            <label>Price:</label>
+            <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} required />
+          </div>
+          <div>
+            <label>Category:</label>
+            <input value={category} onChange={e => setCategory(e.target.value)} required />
+          </div>
+          <div>
+            <label>Stock:</label>
+            <input type="number" value={stock} onChange={e => setStock(e.target.value)} required />
+          </div>
+          <div>
+            <label>Image:</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} required />
+          </div>
+          <button type="submit" disabled={uploading}>{uploading ? 'Uploading...' : 'Add Product'}</button>
+        </form>
+      </div>
+      <AdminFooter />
+    </>
   );
 }
 

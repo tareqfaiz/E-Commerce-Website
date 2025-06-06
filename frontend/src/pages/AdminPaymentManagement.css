@@ -1,0 +1,67 @@
+.admin-payment-management {
+  max-width: 900px;
+  margin: 40px auto 60px;
+  padding: 20px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #2c3e50;
+}
+
+.admin-header {
+  margin-bottom: 30px;
+  user-select: none;
+}
+
+.admin-header h1 {
+  font-weight: 700;
+  font-size: 2rem;
+}
+
+.payment-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.payment-table th,
+.payment-table td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  user-select: none;
+}
+
+.payment-table th {
+  background-color: #4b6cb7;
+  color: #e0e6f0;
+  font-weight: 700;
+}
+
+.payment-table tr:hover {
+  background-color: #f0f4f8;
+}
+
+.delete-button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  background-color: #ff4d4d;
+  color: white;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #ff1a1a;
+  box-shadow: 0 0 8px rgba(255, 26, 26, 0.7);
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-weight: 600;
+  margin-top: 20px;
+  user-select: none;
+}

@@ -9,6 +9,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 import Products from './pages/Products';
 import UserProfile from './pages/UserProfile';
+import AdminProductManagement from './pages/AdminProductManagement';
+import AdminPaymentManagement from './pages/AdminPaymentManagement';
+import AdminManagement from './pages/AdminManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
 import { PageProvider } from './context/PageContext';
@@ -24,7 +27,11 @@ function App() {
       <Router>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <header className="app-header">
-            <Navbar />
+            {/* Conditionally render Navbar based on route */}
+            <Routes>
+              <Route path="/admin/*" element={null} />
+              <Route path="*" element={<Navbar />} />
+            </Routes>
           </header>
           <main className="app-main" style={{ flexGrow: 1, paddingBottom: '6rem', paddingTop: '64px' }}>
             <Routes>
@@ -34,6 +41,27 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin/products/new" element={<AdminProductForm />} />
+              <Route path="/admin/products" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminProductManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/payments" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminPaymentManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/admins" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <UserProfile />
@@ -46,15 +74,13 @@ function App() {
                   </Suspense>
                 </ProtectedRoute>
               } />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/dashboard" element={
-                <ProtectedRoute adminOnly={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
             </Routes>
           </main>
-          <Footer />
+          {/* Conditionally render Footer based on route */}
+          <Routes>
+            <Route path="/admin/*" element={null} />
+            <Route path="*" element={<Footer />} />
+          </Routes>
         </div>
       </Router>
       </PageProvider>

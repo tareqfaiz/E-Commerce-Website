@@ -8,6 +8,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const adminNewsletterRoutes = require('./routes/adminNewsletterRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/payments', paymentRoutes);
 app.use('/newsletter', newsletterRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/users', userRoutes);
+app.use('/admin', adminRoutes);
 
 // Root route to handle GET /
 app.get('/', (req, res) => {
