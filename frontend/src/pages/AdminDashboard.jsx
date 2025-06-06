@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
-import AdminNavbar from '../components/AdminNavbar';
-import CustomerNavbar from '../components/Navbar';  // Assuming this is the customer navbar
-import AdminFooter from '../components/AdminFooter';
-import CustomerFooter from '../components/Footer';  // Assuming this is the customer footer
 import './AdminDashboard.css';
 
 function AdminDashboard() {
@@ -31,7 +27,6 @@ function AdminDashboard() {
 
   return (
     <>
-      {user && user.isAdmin ? <AdminNavbar /> : <CustomerNavbar />}
       <div className="admin-dashboard">
         <header className="admin-header">
           <h1>Admin Dashboard</h1>
@@ -50,7 +45,6 @@ function AdminDashboard() {
           <div className="control-card" onClick={() => window.location.href = '/admin/payments'}>Payment Management</div>
         </section>
       </div>
-      {user && user.isAdmin ? <AdminFooter /> : <CustomerFooter />}
     </>
   );
 }

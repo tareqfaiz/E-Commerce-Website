@@ -4,11 +4,17 @@ const {
   addOrder,
   getOrderById,
   getUserOrders,
+  updateOrder,
+  deleteOrder,
 } = require('../controllers/orderController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.post('/', protect, addOrder);
 router.get('/:id', protect, getOrderById);
 router.get('/', protect, getUserOrders);
+
+// Admin routes for order management
+router.put('/:id', protect, admin, updateOrder);
+router.delete('/:id', protect, admin, deleteOrder);
 
 module.exports = router;

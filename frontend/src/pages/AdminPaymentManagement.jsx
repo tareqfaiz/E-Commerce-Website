@@ -42,12 +42,21 @@ function AdminPaymentManagement() {
     }
   };
 
+  const handleEdit = (id) => {
+    navigate(`/admin/payments/edit/${id}`);
+  };
+
+  const handleAddNew = () => {
+    navigate('/admin/payments/new');
+  };
+
   return (
     <>
       <AdminNavbar />
       <div className="admin-payment-management">
         <header className="admin-header">
           <h1>Payment Management</h1>
+          <button className="add-payment-button" onClick={handleAddNew}>Add New Payment</button>
         </header>
         {loading ? (
           <p>Loading payments...</p>
@@ -74,6 +83,7 @@ function AdminPaymentManagement() {
                   <td>{payment.status}</td>
                   <td>{new Date(payment.createdAt).toLocaleString()}</td>
                   <td>
+                    <button className="edit-button" onClick={() => handleEdit(payment._id)}>Edit</button>
                     <button className="delete-button" onClick={() => handleDelete(payment._id)}>Delete</button>
                   </td>
                 </tr>

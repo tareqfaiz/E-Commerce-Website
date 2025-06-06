@@ -12,11 +12,18 @@ import UserProfile from './pages/UserProfile';
 import AdminProductManagement from './pages/AdminProductManagement';
 import AdminPaymentManagement from './pages/AdminPaymentManagement';
 import AdminManagement from './pages/AdminManagement';
+import AdminCustomerManagement from './pages/AdminCustomerManagement';
+import AdminOrderManagement from './pages/AdminOrderManagement';
+import AdminSubscriptionManagement from './pages/AdminSubscriptionManagement';
+import AdminDeliveryManagement from './pages/AdminDeliveryManagement';
+import AdminDatabaseManagement from './pages/AdminDatabaseManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
 import { PageProvider } from './context/PageContext';
 import Navbar from './components/Navbar';
+import AdminNavbar from './components/AdminNavbar';
 import Footer from './components/Footer';
+import AdminFooter from './components/AdminFooter';
 
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
 
@@ -29,7 +36,9 @@ function App() {
           <header className="app-header">
             {/* Conditionally render Navbar based on route */}
             <Routes>
-              <Route path="/admin/*" element={null} />
+              {/* Render AdminNavbar for admin routes */}
+              <Route path="/admin/*" element={<AdminNavbar />} />
+              {/* Render Customer Navbar for other routes */}
               <Route path="*" element={<Navbar />} />
             </Routes>
           </header>
@@ -56,6 +65,41 @@ function App() {
                   <AdminManagement />
                 </ProtectedRoute>
               } />
+              <Route path="/admin/customers" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminCustomerManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/orders" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminOrderManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/subscriptions" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminSubscriptionManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/deliveries" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminDeliveryManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/databases" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminDatabaseManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={
                 <ProtectedRoute adminOnly={true}>
@@ -78,7 +122,9 @@ function App() {
           </main>
           {/* Conditionally render Footer based on route */}
           <Routes>
-            <Route path="/admin/*" element={null} />
+            {/* Render AdminFooter for admin routes */}
+            <Route path="/admin/*" element={<AdminFooter />} />
+            {/* Render Customer Footer for other routes */}
             <Route path="*" element={<Footer />} />
           </Routes>
         </div>

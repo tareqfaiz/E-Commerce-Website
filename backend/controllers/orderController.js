@@ -60,3 +60,33 @@ exports.getUserOrders = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Update order by ID
+exports.updateOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    // Update fields from req.body
+    Object.assign(order, req.body);
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Delete order by ID
+exports.deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    await order.remove();
+    res.json({ message: 'Order removed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
