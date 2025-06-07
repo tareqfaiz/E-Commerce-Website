@@ -47,38 +47,43 @@ function OrderHistory() {
     <div className="order-history-container">
       <h1>Your Order History</h1>
       <table className="order-history-table">
-        <thead>
+          <thead>
           <tr>
               <th>Order ID</th>
               <th>Date & Time</th>
               <th>Items</th>
               <th>Total Price</th>
               <th>Paid</th>
-              <th>Delivered</th>
+              <th>Order Status</th>
             </tr>
           </thead>
           <tbody>
-          {orders.map(order => (
-            <tr key={order._id} onClick={() => navigate(`/order/${order._id}`)} className="order-row">
-              <td>{order._id}</td>
-              <td>{new Date(order.createdAt).toLocaleString()}</td>
-              <td>
-                <div className="order-items-list">
-                  {order.orderItems.map(item => (
-                    <div key={item.product} className="order-item">
-                      <img src={item.product && item.product.image && (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`)} alt={item.product ? item.product.title : ''} className="order-item-image" />
-                      <span className="order-item-name">
-                        {item.product ? item.product.title : ''} {item.size ? `- Size: ${item.size}` : ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </td>
-              <td>${order.totalPrice.toFixed(2)}</td>
-              <td>{order.isPaid ? 'Yes' : 'No'}</td>
-              <td>{order.isDelivered ? 'Yes' : 'No'}</td>
-            </tr>
-          ))}
+          {orders.map(order => {
+            let displayStatus = 'waiting';
+            if (order.status === 'accepted') displayStatus = 'processed';
+            else if (order.status === 'rejected') displayStatus = 'rejected';
+            return (
+              <tr key={order._id} onClick={() => navigate(`/order/${order._id}`)} className="order-row">
+                <td>{order._id}</td>
+                <td>{new Date(order.createdAt).toLocaleString()}</td>
+                <td>
+                  <div className="order-items-list">
+                    {order.orderItems.map(item => (
+                      <div key={item.product} className="order-item">
+                        <img src={item.product && item.product.image && (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`)} alt={item.product ? item.product.title : ''} className="order-item-image" />
+                        <span className="order-item-name">
+                          {item.product ? item.product.title : ''} {item.size ? `- Size: ${item.size}` : ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </td>
+                <td>${order.totalPrice.toFixed(2)}</td>
+                <td>{order.isPaid ? 'Yes' : 'No'}</td>
+                <td>{displayStatus}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <style>{`

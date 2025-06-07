@@ -32,14 +32,21 @@ function AdminOrderManagement() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this order?')) return;
+  const updateOrderStatus = async (id, status) => {
     try {
-      await api.delete(`/orders/${id}`);
-      setOrders(orders.filter(order => order._id !== id));
+      const response = await api.put(`/orders/${id}`, { status });
+      setOrders(orders.map(order => (order._id === id ? response.data : order)));
     } catch (err) {
-      setError('Failed to delete order');
+      setError('Failed to update order status');
     }
+  };
+
+  const handleAccept = (id) => {
+    updateOrderStatus(id, 'accepted');
+  };
+
+  const handleReject = (id) => {
+    updateOrderStatus(id, 'rejected');
   };
 
   const handleEdit = (id) => {
@@ -67,27 +74,48 @@ function AdminOrderManagement() {
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>User</th>
+                <th>Customer ID</th>
+                <th>Order Date</th>
+                <th>Items</th>
                 <th>Total Price</th>
-                <th>Paid</th>
-                <th>Delivered</th>
+                <th>Payment</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map(order => (
-                <tr key={order._id}>
-                  <td>{order._id}</td>
-                  <td>{order.user?.name || 'N/A'}</td>
-                  <td>${order.totalPrice.toFixed(2)}</td>
-                  <td>{order.isPaid ? 'Yes' : 'No'}</td>
-                  <td>{order.isDelivered ? 'Yes' : 'No'}</td>
-                  <td>
-                    <button className="edit-button" onClick={() => handleEdit(order._id)}>Edit</button>
-                    <button className="delete-button" onClick={() => handleDelete(order._id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
+              {orders.map(order => {
+                const orderDate = new Date(order.createdAt).toLocaleString();
+                return (
+                  <tr key={order._id}>
+                    <td>{order._id}</td>
+                    <td>{order.user?._id || 'N/A'}</td>
+                    <td>{orderDate}</td>
+                    <td>
+                      {order.orderItems.map(item => (
+                        <div key={item.product._id} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                          <img
+                            src={item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`}
+                            alt={item.product.title}
+                            style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '10px' }}
+                          />
+                          <div>
+                            <div>{item.product.title}</div>
+                            <div>Size: {item.size}</div>
+                            <div>Qty: {item.quantity}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </td>
+                    <td>${order.totalPrice.toFixed(2)}</td>
+                    <td>{order.paymentMethod}</td>
+                    <td>
+                      <button className="accept-button" onClick={() => handleAccept(order._id)}>Accept</button>
+                      <button className="reject-button" onClick={() => handleReject(order._id)}>Reject</button>
+                      <button className="edit-button" onClick={() => handleEdit(order._id)}>Edit</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

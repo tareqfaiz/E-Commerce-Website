@@ -18,6 +18,7 @@ import AdminSubscriptionManagement from './pages/AdminSubscriptionManagement';
 import AdminDeliveryManagement from './pages/AdminDeliveryManagement';
 import AdminDatabaseManagement from './pages/AdminDatabaseManagement';
 import AdminProductEdit from './pages/AdminProductEdit';
+import AdminOrderEdit from './pages/AdminOrderEdit';
 import ProtectedRoute from './components/ProtectedRoute';
 import { CartProvider } from './context/CartContext';
 import { PageProvider } from './context/PageContext';
@@ -83,6 +84,13 @@ function App() {
                 <ProtectedRoute adminOnly={true}>
                   <React.Suspense fallback={<div>Loading...</div>}>
                     <AdminOrderManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/orders/edit/:id" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminOrderEdit />
                   </React.Suspense>
                 </ProtectedRoute>
               } />

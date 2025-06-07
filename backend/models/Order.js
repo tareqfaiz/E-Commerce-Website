@@ -35,6 +35,18 @@ const orderSchema = new mongoose.Schema({
   paidAt: Date,
   isDelivered: { type: Boolean, default: false },
   deliveredAt: Date,
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'rejected', 'edited'],
+    default: 'pending',
+  },
+  actions: [
+    {
+      adminName: { type: String, required: true },
+      action: { type: String, required: true },
+      timestamp: { type: Date, default: Date.now },
+    },
+  ],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

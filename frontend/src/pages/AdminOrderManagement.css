@@ -1,9 +1,65 @@
 .admin-order-management {
-  max-width: 900px;
+  max-width: 1140px;
   margin: 40px auto 60px;
-  padding: 20px;
+  padding: 20px 40px;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-x: hidden;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  max-width: 100%;
+  white-space: normal;
+  table-layout: fixed;
+}
+
+.order-table th,
+.order-table td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  user-select: none;
+  vertical-align: top;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+}
+
+.order-table tr:hover {
+  background-color: #f0f4f8;
+}
+
+.order-table img {
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.order-table .items-cell div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.order-table .items-cell div > div {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  color: #333;
+  max-width: 100px;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .admin-header {
@@ -37,42 +93,37 @@
   box-shadow: 0 0 12px rgba(24, 40, 72, 0.8);
 }
 
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.order-table th,
-.order-table td {
-  padding: 15px 20px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  user-select: none;
-}
-
-.order-table th {
-  background-color: #4b6cb7;
-  color: #e0e6f0;
-  font-weight: 700;
-}
-
-.order-table tr:hover {
-  background-color: #f0f4f8;
-}
-
-.edit-button,
-.delete-button {
-  padding: 8px 14px;
+.accept-button,
+.reject-button,
+.edit-button {
+  padding: 6px 12px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
-  margin-right: 8px;
+  margin-right: 6px;
   transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.accept-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.accept-button:hover {
+  background-color: #218838;
+  box-shadow: 0 0 12px rgba(33, 136, 56, 0.8);
+}
+
+.reject-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.reject-button:hover {
+  background-color: #c82333;
+  box-shadow: 0 0 12px rgba(200, 35, 51, 0.8);
 }
 
 .edit-button {
@@ -83,21 +134,4 @@
 .edit-button:hover {
   background-color: #182848;
   box-shadow: 0 0 12px rgba(24, 40, 72, 0.8);
-}
-
-.delete-button {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.delete-button:hover {
-  background-color: #ff1a1a;
-  box-shadow: 0 0 8px rgba(255, 26, 26, 0.7);
-}
-
-.error-message {
-  color: #ff4d4d;
-  font-weight: 600;
-  margin-top: 20px;
-  user-select: none;
 }

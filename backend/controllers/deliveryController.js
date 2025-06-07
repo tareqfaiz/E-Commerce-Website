@@ -21,7 +21,10 @@ exports.createDelivery = async (req, res) => {
 // Get all deliveries
 exports.getDeliveries = async (req, res) => {
   try {
-    const deliveries = await Delivery.find().populate('order');
+    const deliveries = await Delivery.find().populate({
+      path: 'order',
+      populate: { path: 'user', select: 'name email _id' }
+    });
     res.json(deliveries);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

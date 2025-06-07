@@ -77,8 +77,23 @@ exports.updateOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    // Update fields from req.body
-    Object.assign(order, req.body);
+    // Update fields from req.body, including status if provided
+    if (req.body.status && ['pending', 'accepted', 'rejected', 'edited'].includes(req.body.status)) {
+      order.status = req.body.status;
+      // Log admin action
+      const adminName = req.user?.name || 'Unknown Admin';
+      order.actions.push({
+        adminName,
+        action: `Status changed to ${req.body.status}`,
+        timestamp: new Date(),
+      });
+    }
+    // Update other fields
+    Object.keys(req.body).forEach(key => {
+      if (key !== 'status') {
+        order[key] = req.body[key];
+      }
+    });
     const updatedOrder = await order.save();
     res.json(updatedOrder);
   } catch (error) {
