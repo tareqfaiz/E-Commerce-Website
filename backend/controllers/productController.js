@@ -6,6 +6,7 @@ exports.getProducts = async (req, res) => {
     const products = await Product.find({});
     res.json(products);
   } catch (error) {
+    console.error('Error deleting product:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -86,16 +87,27 @@ exports.updateProduct = async (req, res) => {
 };
 
 // Delete product
+const Order = require('../models/Order');
+
 exports.deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const productId = req.params.id;
+
+    // Check if product is referenced in any orders
+    const ordersWithProduct = await Order.findOne({ 'orderItems.product': productId });
+    if (ordersWithProduct) {
+      return res.status(400).json({ message: 'Cannot delete product because it is referenced in existing orders' });
+    }
+
+    const product = await Product.findById(productId);
     if (product) {
-      await product.remove();
+      await product.deleteOne();
       res.json({ message: 'Product removed' });
     } else {
       res.status(404).json({ message: 'Product not found' });
     }
   } catch (error) {
+    console.error('Error deleting product:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
