@@ -133,7 +133,7 @@ function Products() {
           return (
             <div key={p._id} className="product-card">
               <img
-                src={p.image && (p.image.startsWith('http') ? p.image : `${window.location.origin}${p.image}`)}
+                src={p.image && (p.image.startsWith('http') ? p.image : `http://localhost:5000${p.image}`)}
                 alt={p.title}
                 className="product-image"
               />

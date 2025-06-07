@@ -20,6 +20,7 @@ function OrderHistory() {
         const response = await API.get('/orders', {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log('Orders data:', response.data); // Debug log
         setOrders(response.data);
         setLoading(false);
       } catch (err) {
@@ -65,8 +66,10 @@ function OrderHistory() {
                 <div className="order-items-list">
                   {order.orderItems.map(item => (
                     <div key={item.product} className="order-item">
-                      <img src={item.image} alt={item.name} className="order-item-image" />
-                      <span className="order-item-name">{item.name}</span>
+                      <img src={item.product && item.product.image && (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`)} alt={item.product ? item.product.title : ''} className="order-item-image" />
+                      <span className="order-item-name">
+                        {item.product ? item.product.title : ''} {item.size ? `- Size: ${item.size}` : ''}
+                      </span>
                     </div>
                   ))}
                 </div>

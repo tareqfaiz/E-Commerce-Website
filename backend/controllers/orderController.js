@@ -17,9 +17,17 @@ exports.addOrder = async (req, res) => {
   }
 
   try {
+    // Validate orderItems to ensure size is present
+    const validatedOrderItems = orderItems.map(item => ({
+      product: item.product,
+      size: item.size,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
     const order = new Order({
       user: req.user._id,
-      orderItems,
+      orderItems: validatedOrderItems,
       shippingAddress,
       paymentMethod,
       taxPrice,
@@ -54,7 +62,8 @@ exports.getOrderById = async (req, res) => {
 // Get orders for logged in user
 exports.getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id });
+    const orders = await Order.find({ user: req.user._id }).populate('orderItems.product', 'title image');
+    console.log('Fetched orders with populated products:', JSON.stringify(orders, null, 2)); // Debug log
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
