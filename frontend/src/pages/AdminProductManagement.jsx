@@ -38,7 +38,9 @@ function AdminProductManagement() {
       await api.delete(`/products/${id}`);
       setProducts(products.filter(product => product._id !== id));
     } catch (err) {
-      setError('Failed to delete product');
+      // Show detailed error message from backend if available
+      const message = err.response?.data?.message || 'Failed to delete product';
+      setError(message);
     }
   };
 
