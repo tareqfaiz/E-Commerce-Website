@@ -24,9 +24,9 @@ function AdminLogin() {
     try {
       const response = await api.adminLogin({ email, password });
       if (response.data && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        await authContext.login(response.data);
-        if (authContext.user && authContext.user.isAdmin) {
+        localStorage.setItem('adminToken', response.data.token);
+        await authContext.adminLogin(response.data);
+        if (authContext.adminUser && authContext.adminUser.isAdmin) {
           showToast('Admin logged in');
           navigate('/admin/dashboard');
         } else {
@@ -40,11 +40,9 @@ function AdminLogin() {
     }
   };
 
-  React.useEffect(() => {
-    if (authContext.user && authContext.user.isAdmin) {
-      navigate('/admin/dashboard');
-    }
-  }, [authContext.user, navigate]);
+  // Removed useEffect to prevent infinite render loop
+
+  // Navigation handled directly in handleLogin after successful login
 
   return (
     <div className="form-container">

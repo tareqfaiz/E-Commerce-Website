@@ -32,25 +32,25 @@ function Login() {
       return;
     }
     const res = await loginUser({ email, password });
-    if (res.success) {
-      localStorage.setItem('token', res.user.token);
-      await authContext.login(res.user);
-      showToast('Logged in');
-      const waitForAuth = () => {
-        return new Promise((resolve) => {
-          const interval = setInterval(() => {
-            if (authContext.isAuthenticated && !authContext.loading) {
-              clearInterval(interval);
-              resolve();
-            }
-          }, 50);
-        });
-      };
-      await waitForAuth();
-      navigate('/products');
-    } else {
-      showToast('Login failed');
-    }
+      if (res.success) {
+        localStorage.setItem('token', res.user.token);
+        await authContext.login(res.user);
+        showToast('Logged in');
+        const waitForAuth = () => {
+          return new Promise((resolve) => {
+            const interval = setInterval(() => {
+              if (authContext.isAuthenticated && !authContext.loading) {
+                clearInterval(interval);
+                resolve();
+              }
+            }, 50);
+          });
+        };
+        await waitForAuth();
+        navigate('/products');
+      } else {
+        showToast('Login failed');
+      }
   };
 
   const handleGoogleSuccess = (response) => {

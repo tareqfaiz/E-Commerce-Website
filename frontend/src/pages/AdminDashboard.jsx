@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
-  const { user, isAuthenticated } = useAuth();
+  const { adminUser, isAdminAuthenticated } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -12,7 +12,7 @@ function AdminDashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  if (!isAuthenticated || !user?.isAdmin) {
+  if (!isAdminAuthenticated || !adminUser?.isAdmin) {
     return <Navigate to="/admin/login" />;
   }
 
