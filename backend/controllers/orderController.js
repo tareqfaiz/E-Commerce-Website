@@ -10,6 +10,8 @@ exports.addOrder = async (req, res) => {
     shippingPrice,
     totalPrice,
     paymentResult,
+    phoneNumber,
+    updatePhoneNumber,
   } = req.body;
 
   if (!orderItems || orderItems.length === 0) {
@@ -25,8 +27,18 @@ exports.addOrder = async (req, res) => {
       price: item.price,
     }));
 
+    // Fetch user from DB
+    const user = await require('../models/User').findById(req.user._id);
+
+    // Update user phone number if updatePhoneNumber flag is true and phoneNumber is different
+    if (updatePhoneNumber && phoneNumber && user.phone !== phoneNumber) {
+      user.phone = phoneNumber;
+      await user.save();
+    }
+
     const order = new Order({
       user: req.user._id,
+      phoneNumber: phoneNumber || (user ? user.phone : ''),
       orderItems: validatedOrderItems,
       shippingAddress,
       paymentMethod,
@@ -49,7 +61,7 @@ exports.addOrder = async (req, res) => {
 // Get order by ID
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('user', 'name email');
+    const order = await Order.findById(req.params.id).populate('user', 'name email phone');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -62,7 +74,7 @@ exports.getOrderById = async (req, res) => {
 // Get orders for logged in user
 exports.getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate('orderItems.product', 'title image');
+    const orders = await Order.find({ user: req.user._id }).populate('orderItems.product', 'title image').populate('user', 'phone');
     console.log('Fetched orders with populated products:', JSON.stringify(orders, null, 2)); // Debug log
     res.json(orders);
   } catch (error) {
@@ -71,6 +83,8 @@ exports.getUserOrders = async (req, res) => {
 };
 
 // Update order by ID
+const Product = require('../models/Product');
+
 exports.updateOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -89,11 +103,25 @@ exports.updateOrder = async (req, res) => {
       });
     }
     // Update other fields
-    Object.keys(req.body).forEach(key => {
+    for (const key of Object.keys(req.body)) {
       if (key !== 'status') {
         order[key] = req.body[key];
       }
-    });
+    }
+
+    // Recalculate prices if orderItems updated
+    if (req.body.orderItems) {
+      // Fetch product prices for each order item
+      for (const item of order.orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          item.price = product.price * item.quantity;
+        }
+      }
+      // Recalculate totalPrice
+      order.totalPrice = order.orderItems.reduce((sum, item) => sum + item.price, 0);
+    }
+
     const updatedOrder = await order.save();
     res.json(updatedOrder);
   } catch (error) {

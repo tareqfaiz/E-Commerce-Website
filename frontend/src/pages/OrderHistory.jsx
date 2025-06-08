@@ -17,7 +17,7 @@ function OrderHistory() {
           setLoading(false);
           return;
         }
-        const response = await API.get('/orders', {
+        const response = await API.get(`/orders?cacheBust=${Date.now()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('Orders data:', response.data); // Debug log
@@ -72,13 +72,25 @@ function OrderHistory() {
                       <div key={item.product} className="order-item">
                         <img src={item.product && item.product.image && (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`)} alt={item.product ? item.product.title : ''} className="order-item-image" />
                         <span className="order-item-name">
-                          {item.product ? item.product.title : ''} {item.size ? `- Size: ${item.size}` : ''}
+                          {item.product ? item.product.title : ''} {item.size ? `- Size: ${item.size}` : ''} - Qty: {item.quantity}
                         </span>
                       </div>
                     ))}
                   </div>
                 </td>
-                <td>${order.totalPrice.toFixed(2)}</td>
+                <td>
+                  <div>
+                    ${order.totalPrice.toFixed(2)}
+                    <div style={{ fontSize: 'smaller', color: '#555' }}>
+                      Breakdown:
+                      {order.orderItems.map(item => (
+                        <div key={item.product + '-price'}>
+                          {item.product ? item.product.title : ''}: ${item.price.toFixed(2)} x {item.quantity}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </td>
                 <td>{order.isPaid ? 'Yes' : 'No'}</td>
                 <td>{displayStatus}</td>
               </tr>

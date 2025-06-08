@@ -91,6 +91,15 @@ function AdminOrderEdit() {
                 onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value, 10))}
                 required
               />
+              <input
+                type="number"
+                placeholder="Price"
+                value={item.price}
+                min="0"
+                step="0.01"
+                onChange={(e) => handleItemChange(index, 'price', parseFloat(e.target.value))}
+                required
+              />
               <button type="button" onClick={() => handleRemoveItem(index)}>Remove</button>
             </div>
           ))}

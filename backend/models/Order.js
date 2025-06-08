@@ -7,6 +7,10 @@ const orderSchema = new mongoose.Schema({
     required: true,
     ref: 'User',
   },
+  phoneNumber: {
+    type: String,
+    default: '',
+  },
   orderItems: [
     {
       product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },

@@ -10,6 +10,8 @@ function AdminOrderManagement() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -21,10 +23,22 @@ function AdminOrderManagement() {
     fetchOrders();
   }, [isAuthenticated, user, navigate]);
 
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredOrders(orders);
+    } else {
+      const lowerSearch = searchTerm.toLowerCase();
+      setFilteredOrders(
+        orders.filter(order => order._id.toLowerCase().includes(lowerSearch))
+      );
+    }
+  }, [searchTerm, orders]);
+
   const fetchOrders = async () => {
     try {
       const response = await api.get('/orders');
       setOrders(response.data);
+      setFilteredOrders(response.data);
       setLoading(false);
     } catch (err) {
       setError('Failed to fetch orders');
@@ -35,18 +49,23 @@ function AdminOrderManagement() {
   const updateOrderStatus = async (id, status) => {
     try {
       const response = await api.put(`/orders/${id}`, { status });
-      setOrders(orders.map(order => (order._id === id ? response.data : order)));
+      // Update orders state with updated order data
+      setOrders(prevOrders => prevOrders.map(order => (order._id === id ? response.data : order)));
     } catch (err) {
       setError('Failed to update order status');
     }
   };
 
-  const handleAccept = (id) => {
-    updateOrderStatus(id, 'accepted');
+  const handleAccept = async (event, id) => {
+    event.preventDefault();
+    console.log('Accept clicked for order:', id);
+    await updateOrderStatus(id, 'accepted');
   };
 
-  const handleReject = (id) => {
-    updateOrderStatus(id, 'rejected');
+  const handleReject = async (event, id) => {
+    event.preventDefault();
+    console.log('Reject clicked for order:', id);
+    await updateOrderStatus(id, 'rejected');
   };
 
   const handleEdit = (id) => {
@@ -62,8 +81,15 @@ function AdminOrderManagement() {
       <AdminNavbar />
       <div className="admin-order-management">
         <header className="admin-header">
-          <h1>Order Management</h1>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Order Management</h1>
           <button className="add-order-button" onClick={handleAddNew}>Add New Order</button>
+          <input
+            type="text"
+            placeholder="Search by Order ID"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="order-search-input"
+          />
         </header>
         {loading ? (
           <p>Loading orders...</p>
@@ -74,7 +100,7 @@ function AdminOrderManagement() {
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>Customer ID</th>
+                <th>Phone Number</th>
                 <th>Order Date</th>
                 <th>Items</th>
                 <th>Total Price</th>
@@ -83,12 +109,12 @@ function AdminOrderManagement() {
               </tr>
             </thead>
             <tbody>
-              {orders.map(order => {
+              {filteredOrders.map(order => {
                 const orderDate = new Date(order.createdAt).toLocaleString();
                 return (
                   <tr key={order._id}>
                     <td>{order._id}</td>
-                    <td>{order.user?._id || 'N/A'}</td>
+                    <td>{order.phoneNumber || order.user?.phone || 'N/A'}</td>
                     <td>{orderDate}</td>
                     <td>
                       {order.orderItems.map(item => (
@@ -102,6 +128,7 @@ function AdminOrderManagement() {
                             <div>{item.product.title}</div>
                             <div>Size: {item.size}</div>
                             <div>Qty: {item.quantity}</div>
+                            <div>Unit Price: ${item.price.toFixed(2)}</div>
                           </div>
                         </div>
                       ))}
@@ -109,8 +136,16 @@ function AdminOrderManagement() {
                     <td>${order.totalPrice.toFixed(2)}</td>
                     <td>{order.paymentMethod}</td>
                     <td>
-                      <button className="accept-button" onClick={() => handleAccept(order._id)}>Accept</button>
-                      <button className="reject-button" onClick={() => handleReject(order._id)}>Reject</button>
+                      {order.status === 'accepted' ? (
+                        <span className="status accepted">Accepted</span>
+                      ) : order.status === 'rejected' ? (
+                        <span className="status rejected">Rejected</span>
+                      ) : (
+                        <>
+                          <button className="accept-button" onClick={(e) => handleAccept(e, order._id)}>Accept</button>
+                          <button className="reject-button" onClick={(e) => handleReject(e, order._id)}>Reject</button>
+                        </>
+                      )}
                       <button className="edit-button" onClick={() => handleEdit(order._id)}>Edit</button>
                     </td>
                   </tr>

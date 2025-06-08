@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useCart } from '../context/CartContext';
 import API from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 function Cart() {
   const { cartItems, removeFromCart, incrementQuantity, decrementQuantity, clearCart } = useCart();
+  const { user } = useAuth();
   const [paymentMethod, setPaymentMethod] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
@@ -15,6 +17,9 @@ function Cart() {
     postalCode: '',
     country: '',
   });
+  const [phoneNumber, setPhoneNumber] = useState(user?.phone || '');
+  const [showPhoneUpdateConfirm, setShowPhoneUpdateConfirm] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState(null);
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -41,12 +46,11 @@ function Cart() {
     });
   };
 
-  const handlePaymentSubmit = async (e) => {
-    e.preventDefault();
-    if (!paymentMethod) {
-      alert('Please select a payment method');
-      return;
-    }
+  const handlePhoneChange = (e) => {
+    setPhoneNumber(e.target.value);
+  };
+
+  const submitOrder = async (updatePhone) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -61,16 +65,14 @@ function Cart() {
         image: item.image,
         size: item.size,
       }));
-      // Use the shippingAddress state with user input values
-      const shippingAddressData = shippingAddress;
       const paymentResult = {
         id: 'dummy_payment_id',
         status: 'Completed',
         update_time: new Date().toISOString(),
         email_address: 'user@example.com',
       };
-      const taxPrice = 0; // You can calculate tax if needed
-      const shippingPrice = 0; // You can calculate shipping if needed
+      const taxPrice = 0;
+      const shippingPrice = 0;
       const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
       const response = await API.post('/orders', {
@@ -81,6 +83,8 @@ function Cart() {
         shippingPrice,
         totalPrice,
         paymentResult,
+        phoneNumber,
+        updatePhoneNumber: updatePhone,
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -89,6 +93,8 @@ function Cart() {
       clearCart();
       setShowPaymentForm(false);
       setPaymentDetails({});
+      setShowPhoneUpdateConfirm(false);
+      setPendingOrderData(null);
     } catch (error) {
       if (error.response && error.response.status === 401) {
         alert('Authentication failed. Please log in again.');
@@ -96,6 +102,53 @@ function Cart() {
         alert('Failed to place order. Please try again.');
       }
     }
+  };
+
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    if (!paymentMethod) {
+      alert('Please select a payment method');
+      return;
+    }
+    // Check if phone number changed
+    if (phoneNumber !== (user?.phone || '')) {
+      // Show confirmation dialog
+      setShowPhoneUpdateConfirm(true);
+      setPendingOrderData({
+        orderItems: cartItems.map(item => ({
+          product: item._id,
+          quantity: item.quantity,
+          price: item.price,
+          name: item.title,
+          image: item.image,
+          size: item.size,
+        })),
+        shippingAddress,
+        paymentMethod,
+        taxPrice: 0,
+        shippingPrice: 0,
+        totalPrice: cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        paymentResult: {
+          id: 'dummy_payment_id',
+          status: 'Completed',
+          update_time: new Date().toISOString(),
+          email_address: 'user@example.com',
+        },
+        phoneNumber,
+      });
+    } else {
+      // Submit order without phone update
+      submitOrder(false);
+    }
+  };
+
+  const confirmPhoneUpdate = () => {
+    submitOrder(true);
+  };
+
+  const cancelPhoneUpdate = () => {
+    setShowPhoneUpdateConfirm(false);
+    submitOrder(false);
   };
 
   const toggleDetails = (id) => {
@@ -234,6 +287,17 @@ function Cart() {
             className="form-input"
           />
         </div>
+        <div className="form-group">
+          <label className="form-label">Phone Number</label>
+          <input
+            type="text"
+            name="phoneNumber"
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            required
+            className="form-input"
+          />
+        </div>
         {paymentMethod === 'Bank Card' && (
           <>
             <div className="form-group">
@@ -322,6 +386,14 @@ function Cart() {
       </form>
       )}
       {paymentStatus && <p className="payment-status">{paymentStatus}</p>}
+
+      {showPhoneUpdateConfirm && (
+        <div className="phone-update-confirm-dialog">
+          <p>Do you want to update your existing phone number?</p>
+          <button onClick={confirmPhoneUpdate} className="confirm-button">Confirm</button>
+          <button onClick={cancelPhoneUpdate} className="cancel-button">Cancel</button>
+        </div>
+      )}
     </div>
   );
 }
