@@ -172,7 +172,10 @@ function Cart() {
       {cartItems.map(item => (
         <div key={`${item.id}-${item.size}`} className="cart-item" style={{ position: 'relative' }}>
           <div style={{ position: 'relative', display: 'inline-block' }}>
-            <img src={item.image} alt={item.title} className="cart-item-image" />
+            {/*
+              Prefix the image URL with backend base URL and /uploads/ folder
+            */}
+            <img src={`http://localhost:5000${item.image}`} alt={item.title} className="cart-item-image" />
             <button
               className="details-button"
               onClick={() => toggleDetails(item.id)}

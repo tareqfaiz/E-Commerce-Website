@@ -18,16 +18,16 @@ function cartReducer(state, action) {
     case 'ADD_TO_CART':
       const { product, selectedSize } = action.payload;
       const existingItem = state.cartItems.find(
-        item => item.id === product.id && item.size === selectedSize
+        item => item.id === product._id && item.size === selectedSize
       );
       if (existingItem) {
         updatedCartItems = state.cartItems.map(item =>
-          item.id === product.id && item.size === selectedSize
+          item.id === product._id && item.size === selectedSize
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        updatedCartItems = [...state.cartItems, { ...product, size: selectedSize, quantity: 1 }];
+        updatedCartItems = [...state.cartItems, { ...product, size: selectedSize, quantity: 1, id: product._id }];
       }
       localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
       return {
@@ -92,14 +92,16 @@ export const CartProvider = ({ children }) => {
       }
       try {
         const detailedItems = await Promise.all(
-          storedCartItems.map(async (item) => {
-            const response = await API.get(`/products/${item.id}`);
-            return {
-              ...response.data,
-              quantity: item.quantity,
-              size: item.size,
-            };
-          })
+          storedCartItems
+            .filter(item => item.id) // filter out items with undefined id
+            .map(async (item) => {
+              const response = await API.get(`/products/${item.id}`);
+              return {
+                ...response.data,
+                quantity: item.quantity,
+                size: item.size,
+              };
+            })
         );
         dispatch({ type: 'SET_CART_ITEMS', payload: detailedItems });
       } catch (error) {
