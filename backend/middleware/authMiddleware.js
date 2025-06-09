@@ -9,8 +9,10 @@ const protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(' ')[1];
+      console.log('Token found:', token);
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
+      console.log('User found:', req.user);
       next();
     } catch (error) {
       console.error('Token verification failed:', error.message);

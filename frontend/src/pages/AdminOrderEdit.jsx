@@ -18,10 +18,10 @@ function AdminOrderEdit() {
       try {
         const response = await api.get(`/orders/${id}`);
         setOrder(response.data);
-        // Convert orderItems price from total price to unit price
+        // Remove incorrect conversion of price by quantity, backend already sends unit price
         const convertedItems = response.data.orderItems.map(item => ({
           ...item,
-          price: item.quantity ? item.price / item.quantity : item.price,
+          price: item.price,
         }));
         setOrderItems(convertedItems);
         setLoading(false);
@@ -102,8 +102,8 @@ function AdminOrderEdit() {
                 value={item.price}
                 min="0"
                 step="0.01"
-                onChange={(e) => handleItemChange(index, 'price', parseFloat(e.target.value))}
-                required
+                readOnly
+                // Disabled editing price to keep unit price consistent
               />
               <button type="button" onClick={() => handleRemoveItem(index)}>Remove</button>
             </div>

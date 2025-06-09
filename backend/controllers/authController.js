@@ -26,15 +26,19 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
+    console.log('Login attempt for email:', email);
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found for email:', email);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('Password mismatch for email:', email);
       return res.status(401).json({ message: 'Invalid email or password' });
     }
     const token = generateToken(user._id);
+    console.log('Login successful for email:', email);
     res.json({ 
       _id: user._id, 
       name: user.name, 
@@ -44,6 +48,7 @@ exports.login = async (req, res) => {
       token 
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -90,5 +95,30 @@ exports.adminRegister = async (req, res) => {
     res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, token });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.refreshToken = async (req, res) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // Optionally, check if user still exists
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      const newToken = generateToken(user._id);
+      res.json({ token: newToken });
+    } catch (error) {
+      console.error('Refresh token verification failed:', error.message);
+      res.status(401).json({ message: 'Not authorized, token failed' });
+    }
+  } else {
+    res.status(401).json({ message: 'Not authorized, no token' });
   }
 };

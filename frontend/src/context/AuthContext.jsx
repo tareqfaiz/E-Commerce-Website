@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import API from '../services/api';
 
 const AuthContext = createContext();
@@ -43,12 +42,10 @@ export const AuthProvider = ({ children }) => {
           localStorage.removeItem('user');
         }
       } else {
-        // If no token, clear user state
         setUser(null);
         localStorage.removeItem('user');
       }
     } catch (error) {
-      // On error, clear user state
       setUser(null);
       localStorage.removeItem('user');
     }
@@ -61,8 +58,35 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  // New function to refresh token
+  const refreshToken = useCallback(async () => {
+    try {
+      const response = await API.post('/auth/refresh-token', {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (response.status === 200 && response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        return true;
+      }
+    } catch (error) {
+      logout();
+      return false;
+    }
+  }, []);
+
+  // Periodically refresh token every 10 minutes
   useEffect(() => {
-    // Optionally, validate token or refresh session here
+    const interval = setInterval(() => {
+      if (user) {
+        refreshToken();
+      }
+    }, 10 * 60 * 1000); // 10 minutes
+    return () => clearInterval(interval);
+  }, [user, refreshToken]);
+
+  useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
@@ -71,14 +95,13 @@ export const AuthProvider = ({ children }) => {
           logout();
         }
       } catch (error) {
-        // Invalid token format
         logout();
       }
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );

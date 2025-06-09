@@ -151,13 +151,12 @@ exports.deleteOrder = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
   try {
     let orders = await Order.find({}).populate('orderItems.product', 'title image').populate('user', 'phone');
-    // Filter out orderItems with null product and recalculate unit price
+    // Filter out orderItems with null product, no need to recalculate unit price as price is already unit price
     orders = orders.map(order => {
       order.orderItems = order.orderItems.filter(item => item.product !== null).map(item => {
-        const unitPrice = item.quantity ? item.price / item.quantity : item.price;
         return {
           ...item.toObject(),
-          price: unitPrice,
+          price: item.price,
         };
       });
       return order;

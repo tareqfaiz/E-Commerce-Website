@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, createRoutesFromElements } from 'react-router-dom';
 import Home from './pages/Home';
 import AdminProductForm from './pages/AdminProductForm';
 import Cart from './pages/Cart';
@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 import Products from './pages/Products';
 import UserProfile from './pages/UserProfile';
+import UpdateUserInfo from './pages/UpdateUserInfo';
 import AdminProductManagement from './pages/AdminProductManagement';
 import AdminPaymentManagement from './pages/AdminPaymentManagement';
 import AdminManagement from './pages/AdminManagement';
@@ -124,6 +125,11 @@ function App() {
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <UserProfile />
+                </ProtectedRoute>
+              } />
+              <Route path="/update-info" element={
+                <ProtectedRoute>
+                  <UpdateUserInfo />
                 </ProtectedRoute>
               } />
               <Route path="/order-history" element={
