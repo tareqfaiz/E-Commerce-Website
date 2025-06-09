@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import './PhotoCarousel.css';
 
+const BACKEND_BASE_URL = import.meta.env.VITE_API_URL;
+
 function PhotoCarousel() {
   const [productImages, setProductImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -10,10 +12,10 @@ function PhotoCarousel() {
     // Fetch products to get images
     API.get('/products').then(res => {
       // Get all product images and shuffle them
-      const images = res.data.map(product => ({
-        url: product.image,
-        title: product.title
-      }));
+const images = res.data.map(product => ({
+  url: product.image.startsWith('http') ? product.image : BACKEND_BASE_URL + product.image,
+  title: product.title
+}));
       
       // Shuffle array to randomize images
       const shuffled = images.sort(() => 0.5 - Math.random());
@@ -65,10 +67,10 @@ function PhotoCarousel() {
       <div className="carousel-track">
         {/* Duplicate images for seamless loop */}
         {[...visibleImages, ...visibleImages].map((image, index) => (
-          <div
-            key={`${image.url}-${index}`}
-            className="carousel-item"
-          >
+        <div
+          key={image.url + '-' + index}
+          className="carousel-item"
+        >
             <img
               src={image.url}
               alt={image.title}
