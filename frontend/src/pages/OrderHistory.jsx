@@ -68,8 +68,8 @@ function OrderHistory() {
                 <td>{new Date(order.createdAt).toLocaleString()}</td>
                 <td>
                   <div className="order-items-list">
-                    {order.orderItems.map(item => (
-                      <div key={item.product} className="order-item">
+                    {order.orderItems.map((item, index) => (
+                      <div key={item.product?._id || index} className="order-item">
                         <img src={item.product && item.product.image && (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`)} alt={item.product ? item.product.title : ''} className="order-item-image" />
                         <span className="order-item-name">
                           {item.product ? item.product.title : ''} {item.size ? `- Size: ${item.size}` : ''} - Qty: {item.quantity}
@@ -83,8 +83,8 @@ function OrderHistory() {
                     ${order.totalPrice.toFixed(2)}
                     <div style={{ fontSize: 'smaller', color: '#555' }}>
                       Breakdown:
-                      {order.orderItems.map(item => (
-                        <div key={item.product + '-price'}>
+                      {order.orderItems.map((item, index) => (
+                        <div key={(item.product?._id || index) + '-price'}>
                           {item.product ? item.product.title : ''}: ${item.price.toFixed(2)} x {item.quantity}
                         </div>
                       ))}

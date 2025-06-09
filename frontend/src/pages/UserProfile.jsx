@@ -55,11 +55,19 @@ function UserProfile() {
         setMessage('Profile updated successfully');
         // Update user context with new info
         login({ ...user, ...updateData });
+      } else if (response.status === 401 || response.status === 403) {
+        setMessage('Session expired. Please log in again.');
+        logout();
       } else {
         setMessage('Failed to update profile');
       }
     } catch (error) {
-      setMessage('Error updating profile');
+      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        setMessage('Session expired. Please log in again.');
+        logout();
+      } else {
+        setMessage('Error updating profile');
+      }
     }
   };
 

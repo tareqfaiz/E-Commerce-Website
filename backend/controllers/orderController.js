@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 
 // Create new order
 exports.addOrder = async (req, res) => {
@@ -83,8 +84,6 @@ exports.getUserOrders = async (req, res) => {
 };
 
 // Update order by ID
-const Product = require('../models/Product');
-
 exports.updateOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -123,7 +122,8 @@ exports.updateOrder = async (req, res) => {
     }
 
     const updatedOrder = await order.save();
-    res.json(updatedOrder);
+    const populatedOrder = await updatedOrder.populate('orderItems.product', 'title image').populate('user', 'phone');
+    res.json(populatedOrder);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -138,6 +138,21 @@ exports.deleteOrder = async (req, res) => {
     }
     await order.remove();
     res.json({ message: 'Order removed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// New controller method to get all orders for admin
+exports.getAllOrders = async (req, res) => {
+  try {
+    let orders = await Order.find({}).populate('orderItems.product', 'title image').populate('user', 'phone');
+    // Filter out orderItems with null product
+    orders = orders.map(order => {
+      order.orderItems = order.orderItems.filter(item => item.product !== null);
+      return order;
+    });
+    res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

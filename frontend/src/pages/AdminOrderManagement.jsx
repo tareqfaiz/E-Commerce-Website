@@ -36,7 +36,7 @@ function AdminOrderManagement() {
 
   const fetchOrders = async () => {
     try {
-      const response = await api.get('/orders');
+      const response = await api.get('/orders/admin/all');
       setOrders(response.data);
       setFilteredOrders(response.data);
       setLoading(false);
@@ -109,7 +109,7 @@ function AdminOrderManagement() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map(order => {
+              {filteredOrders.filter(order => order != null).map(order => {
                 const orderDate = new Date(order.createdAt).toLocaleString();
                 return (
                   <tr key={order._id}>
@@ -117,15 +117,15 @@ function AdminOrderManagement() {
                     <td>{order.phoneNumber || order.user?.phone || 'N/A'}</td>
                     <td>{orderDate}</td>
                     <td>
-                      {order.orderItems.map(item => (
-                        <div key={item.product._id} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                      {order.orderItems.map((item, index) => (
+                        <div key={item._id || `${item.product?._id}-${index}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
                           <img
-                            src={item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`}
-                            alt={item.product.title}
+                            src={item.product && item.product.image ? (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image.startsWith('/') ? '' : '/'}${item.product.image}`) : 'https://via.placeholder.com/40'}
+                            alt={item.product ? item.product.title : 'Unknown Product'}
                             style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '10px' }}
                           />
                           <div>
-                            <div>{item.product.title}</div>
+                            <div>{item.product ? item.product.title : 'Unknown Product'}</div>
                             <div>Size: {item.size}</div>
                             <div>Qty: {item.quantity}</div>
                             <div>Unit Price: ${item.price.toFixed(2)}</div>

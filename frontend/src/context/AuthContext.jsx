@@ -28,12 +28,20 @@ export const AuthProvider = ({ children }) => {
       }
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await API.get('/users/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const freshUserData = response.data;
-        setUser(freshUserData);
-        localStorage.setItem('user', JSON.stringify(freshUserData));
+        try {
+          const response = await API.get('/users/profile', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const freshUserData = response.data;
+          setUser(freshUserData);
+          localStorage.setItem('user', JSON.stringify(freshUserData));
+        } catch (error) {
+          if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+            logout();
+          }
+          setUser(null);
+          localStorage.removeItem('user');
+        }
       } else {
         // If no token, clear user state
         setUser(null);
@@ -55,6 +63,18 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Optionally, validate token or refresh session here
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        if (decoded.exp * 1000 < Date.now()) {
+          logout();
+        }
+      } catch (error) {
+        // Invalid token format
+        logout();
+      }
+    }
   }, []);
 
   return (
