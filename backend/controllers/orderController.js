@@ -68,6 +68,7 @@ exports.getOrderById = async (req, res) => {
     }
     res.json(order);
   } catch (error) {
+    console.error('Error updating order:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -79,6 +80,7 @@ exports.getUserOrders = async (req, res) => {
     console.log('Fetched orders with populated products:', JSON.stringify(orders, null, 2)); // Debug log
     res.json(orders);
   } catch (error) {
+    console.error('Error updating order:', error.stack || error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -110,15 +112,17 @@ exports.updateOrder = async (req, res) => {
 
     // Recalculate prices if orderItems updated
     if (req.body.orderItems) {
-      // Fetch product prices for each order item
-      for (const item of order.orderItems) {
+      // Fetch product prices for each order item in req.body.orderItems
+      for (const item of req.body.orderItems) {
         const product = await Product.findById(item.product);
         if (product) {
-          item.price = product.price * item.quantity;
+          item.price = product.price; // store unit price
         }
       }
-      // Recalculate totalPrice
-      order.totalPrice = order.orderItems.reduce((sum, item) => sum + item.price, 0);
+      // Update orderItems with recalculated prices
+      order.orderItems = req.body.orderItems;
+      // Recalculate totalPrice as sum of unit price * quantity
+      order.totalPrice = order.orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     }
 
     const updatedOrder = await order.save();
@@ -147,9 +151,15 @@ exports.deleteOrder = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
   try {
     let orders = await Order.find({}).populate('orderItems.product', 'title image').populate('user', 'phone');
-    // Filter out orderItems with null product
+    // Filter out orderItems with null product and recalculate unit price
     orders = orders.map(order => {
-      order.orderItems = order.orderItems.filter(item => item.product !== null);
+      order.orderItems = order.orderItems.filter(item => item.product !== null).map(item => {
+        const unitPrice = item.quantity ? item.price / item.quantity : item.price;
+        return {
+          ...item.toObject(),
+          price: unitPrice,
+        };
+      });
       return order;
     });
     res.json(orders);

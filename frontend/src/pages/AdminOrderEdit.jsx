@@ -18,7 +18,12 @@ function AdminOrderEdit() {
       try {
         const response = await api.get(`/orders/${id}`);
         setOrder(response.data);
-        setOrderItems(response.data.orderItems);
+        // Convert orderItems price from total price to unit price
+        const convertedItems = response.data.orderItems.map(item => ({
+          ...item,
+          price: item.quantity ? item.price / item.quantity : item.price,
+        }));
+        setOrderItems(convertedItems);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch order');
