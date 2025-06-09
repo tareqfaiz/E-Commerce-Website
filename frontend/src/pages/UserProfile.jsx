@@ -36,7 +36,7 @@ function UserProfile() {
         </div>
       )}
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={() => window.location.href = '/update-info'}>Update Info</button>
     </div>
   );
 }

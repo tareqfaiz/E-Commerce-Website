@@ -256,24 +256,6 @@ function Navbar() {
                 Profile
               </Link>
               <Link
-                to="/update-info"
-                className="navbar-link"
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  backgroundColor: '#2563eb',
-                  color: 'white',
-                  fontWeight: '600',
-                  textDecoration: 'none',
-                  transition: 'background-color 0.3s ease',
-                  fontSize: '14px',
-                }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1e40af'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = '#2563eb'}
-              >
-                Update Info
-              </Link>
-              <Link
                 to="/order-history"
                 className="navbar-link"
                 style={{
@@ -409,14 +391,6 @@ function Navbar() {
                 style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
               >
                 Profile
-              </Link>
-              <Link
-                to="/update-info"
-                className="navbar-mobile-link"
-                onClick={() => setIsMenuOpen(false)}
-                style={{ padding: '8px 0', color: 'white', textDecoration: 'none', fontWeight: '600' }}
-              >
-                Update Info
               </Link>
               <button
                 onClick={handleLogout}
