@@ -28,6 +28,7 @@ import AdminNavbar from './components/AdminNavbar';
 import Footer from './components/Footer';
 import AdminFooter from './components/AdminFooter';
 import Chatbot from './components/Chatbot';
+import AdminContactRequests from './pages/AdminContactRequests';
 
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
 
@@ -115,6 +116,11 @@ function App() {
                   <React.Suspense fallback={<div>Loading...</div>}>
                     <AdminDatabaseManagement />
                   </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/contact-requests" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminContactRequests />
                 </ProtectedRoute>
               } />
               <Route path="/admin/login" element={<AdminLogin />} />

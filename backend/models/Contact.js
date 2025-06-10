@@ -17,6 +17,20 @@ const contactSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    read: {
+      type: Boolean,
+      default: false,
+    },
+    readAt: {
+      type: Date,
+    },
+    repliedAt: {
+      type: Date,
+    },
+    repliedBy: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,

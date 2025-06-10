@@ -43,6 +43,7 @@ function AdminDashboard() {
           <div className="control-card" onClick={() => window.location.href = '/admin/admins'}>Admin Management</div>
           <div className="control-card" onClick={() => window.location.href = '/admin/products'}>Product Management</div>
           <div className="control-card" onClick={() => window.location.href = '/admin/payments'}>Payment Management</div>
+          <div className="control-card" onClick={() => window.location.href = '/admin/contact-requests'}>Contact Requests</div>
         </section>
       </div>
     </>
