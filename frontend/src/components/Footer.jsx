@@ -13,7 +13,7 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-section">
-          <h3 className="footer-heading">Subscribe to our Newsletter</h3>
+          <h3 className="footer-heading">Subscribe Newsletter</h3>
           <form onSubmit={handleSubscribe} className="footer-form">
             <input
               type="email"
