@@ -27,6 +27,7 @@ import Navbar from './components/Navbar';
 import AdminNavbar from './components/AdminNavbar';
 import Footer from './components/Footer';
 import AdminFooter from './components/AdminFooter';
+import Chatbot from './components/Chatbot';
 
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
 
@@ -149,6 +150,7 @@ function App() {
             {/* Render Customer Footer for other routes */}
             <Route path="*" element={<Footer />} />
           </Routes>
+          <Chatbot />
         </div>
       </Router>
       </PageProvider>
