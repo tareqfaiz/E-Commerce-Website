@@ -19,4 +19,9 @@ router.patch('/:id/read', markContactRead);
 // POST /contact/:id/reply - send reply email and log admin info
 router.post('/:id/reply', replyContact);
 
+const { deleteContact } = require('../controllers/contactController');
+
+// DELETE /contact/:id - delete contact request
+router.delete('/:id', deleteContact);
+
 module.exports = router;

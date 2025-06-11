@@ -1,137 +1,166 @@
+/* General layout and styling */
 .admin-contact-requests {
+  max-width: 100%;
+  margin: 20px auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.admin-contact-requests h2 {
-  margin-bottom: 20px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #333;
 }
 
+.admin-contact-requests h2 {
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+/* Table styles */
 .contact-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .contact-table th,
 .contact-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+  padding: 6px 8px; /* Reduce padding */
   text-align: left;
-  vertical-align: middle;
+  font-size: 10px; /* Reduce font size */
 }
 
 .contact-table th {
-  background-color: #f4f4f4;
-  font-weight: 600;
-}
-
-.contact-table tr.unread {
-  font-weight: bold;
-  background-color: #e9f5ff;
-}
-
-.contact-table tr.read {
-  color: #666;
-}
-
-.contact-table button {
-  margin-right: 5px;
-  padding: 5px 10px;
   background-color: #007bff;
-  border: none;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.contact-table button:hover {
-  background-color: #0056b3;
+.contact-table tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
-.pagination {
+.contact-table tr:hover {
+  background-color: #eee;
+}
+
+/* Adjust column widths to prevent horizontal scrolling */
+.contact-table th:nth-child(1),
+.contact-table td:nth-child(1) {
+  width: 8%; /* Name */
+}
+
+.contact-table th:nth-child(2),
+.contact-table td:nth-child(2) {
+  width: 10%; /* Email */
+}
+
+.contact-table th:nth-child(3),
+.contact-table td:nth-child(3) {
+  width: 20%; /* Message */
+  white-space: normal; /* Allow text wrapping */
+}
+
+.contact-table th:nth-child(4),
+.contact-table td:nth-child(4) {
+  width: 10%; /* Received At */
+}
+
+.contact-table th:nth-child(5),
+.contact-table td:nth-child(5) {
+  width: 5%;  /* Read */
+}
+
+.contact-table th:nth-child(6),
+.contact-table td:nth-child(6) {
+  width: 10%; /* Read At */
+}
+
+.contact-table th:nth-child(7),
+.contact-table td:nth-child(7) {
+  width: 8%; /* Replied By */
+}
+
+.contact-table th:nth-child(8),
+.contact-table td:nth-child(8) {
+  width: 12%; /* Replied At */
+}
+
+.contact-table th:nth-child(9),
+.contact-table td:nth-child(9) {
+  width: 20%; /* Reply Message */
+  white-space: normal; /* Allow text wrapping */
+}
+
+.contact-table th:nth-child(10),
+.contact-table td:nth-child(10) {
+  width: 8%; /* Actions */
+}
+
+/* Message modal styles */
+.message-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  z-index: 1001;
+}
+
+.message-modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  width: 600px;
+  max-width: 90%;
+  margin: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.message-modal h3 {
+  color: #007bff;
+  margin-bottom: 15px;
+}
+
+.message-modal p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.message-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .pagination button {
-  padding: 5px 10px;
-  background-color: #007bff;
+  padding: 10px 15px;
+  margin: 0 5px;
   border: none;
+  background-color: #007bff;
   color: white;
-  border-radius: 4px;
   cursor: pointer;
+  border-radius: 5px;
 }
 
 .pagination button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
-}
-
-.reply-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 400px;
-  max-width: 90vw;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  padding: 20px;
-  transform: translate(-50%, -50%);
-  z-index: 11000;
-}
-
-.reply-modal h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-}
-
-.reply-modal textarea {
-  width: 100%;
-  height: 120px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  resize: vertical;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.modal-actions button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.modal-actions button:first-child {
-  background-color: #28a745;
-  color: white;
-}
-
-.modal-actions button:first-child:hover {
-  background-color: #218838;
-}
-
-.modal-actions button:last-child {
-  background-color: #dc3545;
-  color: white;
-}
-
-.modal-actions button:last-child:hover {
-  background-color: #c82333;
 }

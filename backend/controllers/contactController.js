@@ -75,54 +75,83 @@ const markContactRead = async (req, res) => {
 
 // Send reply email and log admin info
 const replyContact = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { replyMessage, adminName } = req.body;
+  
+      if (!replyMessage || !adminName) {
+        return res
+          .status(400)
+          .json({ message: "Reply message and admin name are required" });
+      }
+  
+      const contact = await Contact.findById(id);
+      if (!contact) {
+        return res.status(404).json({ message: "Contact request not found" });
+      }
+  
+      // Send email to contact email
+      const transporter = nodemailer.createTransport({
+        // Configure your email service here
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+  
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: contact.email,
+        subject: "Reply to your contact request",
+        text: replyMessage,
+      };
+  
+      await transporter.sendMail(mailOptions);
+  
+      // Update contact with reply info
+      contact.repliedAt = new Date();
+      contact.repliedBy = adminName;
+      contact.replyMessage = replyMessage;
+  
+      await contact.save();
+  
+      res.json({ message: "Reply sent and contact updated", contact });
+    } catch (error) {
+      console.error("Error replying to contact request:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+
+  // Delete contact request
+const deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
-    const { replyMessage, adminName } = req.body;
-
-    if (!replyMessage || !adminName) {
-      return res.status(400).json({ message: 'Reply message and admin name are required' });
-    }
 
     const contact = await Contact.findById(id);
     if (!contact) {
       return res.status(404).json({ message: 'Contact request not found' });
     }
 
-    // Send email to contact email
-    const transporter = nodemailer.createTransport({
-      // Configure your email service here
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    // Ask for confirmation before deleting
+    const confirm = req.body.confirm;
+    if (!confirm) {
+      return res.status(400).json({ message: 'Confirmation required to delete contact' });
+    }
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: contact.email,
-      subject: 'Reply to your contact request',
-      text: replyMessage,
-    };
+    await Contact.findByIdAndDelete(id);
 
-    await transporter.sendMail(mailOptions);
-
-    // Update contact with reply info
-    contact.repliedAt = new Date();
-    contact.repliedBy = adminName;
-
-    await contact.save();
-
-    res.json({ message: 'Reply sent and contact updated', contact });
+    res.json({ message: 'Contact request deleted' });
   } catch (error) {
-    console.error('Error replying to contact request:', error);
+    console.error('Error deleting contact request:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
-
-module.exports = {
-  submitContactForm,
-  getContactRequests,
-  markContactRead,
-  replyContact,
-};
+  
+  module.exports = {
+    submitContactForm,
+    getContactRequests,
+    markContactRead,
+    replyContact,
+    deleteContact,
+  };
