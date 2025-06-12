@@ -6,8 +6,125 @@ import MessageModal from '../components/MessageModal';
 const AdminContactRequests = () => {
   const [replyModal, setReplyModal] = useState({ show: false, contact: null });
   const [contacts, setContacts] = useState([]);
+  const [notification, setNotification] = useState({ show: false, message: '' });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [adminName, setAdminName] = useState('Admin'); // You can replace with actual admin name from auth context
+  const [selectedContactForReply, setSelectedContactForReply] = useState(null);
+  const [messageModal, setMessageModal] = useState({ show: false, title: '', contact: null, message: '' });
+  const [isReplying, setIsReplying] = useState(false);
 
- const deleteContact = async (contactId) => {
+  const fetchContacts = async (pageNumber = 1) => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`/contact?page=${pageNumber}`);
+      setContacts(data.contacts);
+      setPage(data.page);
+      setTotalPages(data.totalPages);
+    } catch (error) {
+      console.error('Failed to fetch contact requests:', error);
+      alert('Failed to fetch contact requests');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+
+  const markAsRead = async (contactId, read) => {
+    try {
+      await axios.patch(`/contact/${contactId}/read`, { read });
+      fetchContacts(page);
+    } catch (error) {
+      console.error('Failed to update read status:', error);
+      alert('Failed to update read status');
+    }
+  };
+
+  const sendReply = async (contactId) => {
+    console.log('sendReply called with contactId:', contactId, 'replyMessage:', replyMessage);
+    if (!replyMessage.trim() || !contactId) {
+      console.log('replyMessage is empty or contactId is missing');
+      return;
+    }
+    try {
+      await axios.post(`/contact/${contactId}/reply`, {
+        replyMessage,
+        adminName,
+      });
+      setNotification({ show: true, message: 'Reply sent successfully' });
+      setTimeout(() => {
+        setNotification({ show: false, message: '' });
+      }, 3000);
+      setReplyMessage('');
+      setSelectedContact(null);
+      fetchContacts(page);
+      hideMessage();
+    } catch (error) {
+      console.error('Failed to send reply:', error);
+      alert('Failed to send reply');
+    }
+  };
+
+  const showMessage = async (contact) => {
+    setMessageModal({
+      show: true,
+      title: 'Message',
+      message: contact.message,
+      contact: contact,
+      replyMessage: replyMessage,
+      setReplyMessage: setReplyMessage,
+    });
+    setIsReplying(false);
+    if (!contact.read) {
+      try {
+        await axios.patch(`/contact/${contact._id}/read`, { read: true });
+        fetchContacts(page);
+      } catch (error) {
+        console.error('Failed to update read status:', error);
+        alert('Failed to update read status');
+      }
+    }
+  };
+
+  const hideMessage = () => {
+    setMessageModal({ show: false, title: '', contact: null, message: '' });
+    setSelectedContact(null); // Also clear selectedContact when closing message
+  };
+
+  const showReplySection = (contact) => {
+    setSelectedContactForReply(contact);
+    setMessageModal({
+      show: true,
+      title: `Reply to ${contact.name}`,
+      message: (
+        <div className="reply-section">
+          <textarea
+            value={replyMessage}
+            onChange={(e) => setReplyMessage(e.target.value)}
+            placeholder="Type your reply here..."
+          />
+          <div className="modal-actions">
+            <button onClick={sendReply}>Send Reply</button>
+            <button onClick={() => {
+              setSelectedContactForReply(null);
+              hideMessage();
+            }}>Cancel</button>
+          </div>
+        </div>
+      ),
+      onCancel: () => {
+        setSelectedContactForReply(null);
+        hideMessage();
+      },
+    });
+  };
+
+  const deleteContact = async (contactId) => {
     setSelectedContact(contactId);
     setMessageModal({
       show: true,
@@ -29,77 +146,19 @@ const AdminContactRequests = () => {
       },
     });
   };
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [selectedContact, setSelectedContact] = useState(null);
-  const [replyMessage, setReplyMessage] = useState('');
-  const [adminName, setAdminName] = useState('Admin'); // You can replace with actual admin name from auth context
-  const [messageModal, setMessageModal] = useState({ show: false, title: '', contact: null, message: '', onConfirm: null, onCancel: null });
 
-  const fetchContacts = async (pageNumber = 1) => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get(`/contact?page=${pageNumber}`);
-      setContacts(data.contacts);
-      setPage(data.page);
-      setTotalPages(data.totalPages);
-    } catch (error) {
-      console.error('Failed to fetch contact requests:', error);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchContacts();
-  }, []);
-
-  const markAsRead = async (contactId, read) => {
-    try {
-      await axios.patch(`/contact/${contactId}/read`, { read });
-      fetchContacts(page);
-    } catch (error) {
-      console.error('Failed to update read status:', error);
-    }
-  };
-
-  const sendReply = async () => {
-    if (!replyMessage.trim() || !selectedContact) return;
-    try {
-      await axios.post(`/contact/${selectedContact._id}/reply`, {
-        replyMessage,
-        adminName,
-      });
-      alert('Reply sent successfully');
-      setReplyMessage('');
-      setSelectedContact(null);
-      fetchContacts(page);
-    } catch (error) {
-      console.error('Failed to send reply:', error);
-      alert('Failed to send reply');
-    }
-  };
-
- const showMessage = async (contact) => {
-    setMessageModal({ show: true, contact: contact });
-    if (!contact.read) {
-      try {
-        await axios.patch(`/contact/${contact._id}/read`, { read: true });
-        fetchContacts(page);
-      } catch (error) {
-        console.error('Failed to update read status:', error);
-      }
-    }
-  };
-
-  const hideMessage = () => {
-    setMessageModal({ show: false, title: '', contact: null, message: '', onConfirm: null, onCancel: null });
-    setSelectedContact(null); // Also clear selectedContact when closing message
+  const hideReply = () => {
+    setReplyModal({ show: false, contact: null });
   };
 
   return (
     <div className="admin-contact-requests">
       <h2>Contact Requests</h2>
+      {notification.show && (
+        <div className="notification">
+          {notification.message}
+        </div>
+      )}
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -139,9 +198,12 @@ const AdminContactRequests = () => {
                   <td>{contact.repliedAt ? new Date(contact.repliedAt).toLocaleString() : '-'}</td>
                   <td
                     className="message-cell"
-                    onClick={() => showReply(contact)}
-                    style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                    title="Click to view reply"
+                    style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+                    onClick={() => {
+                      if (contact.replyMessage) {
+                        setReplyModal({ show: true, contact });
+                      }
+                    }}
                   >
                     {contact.replyMessage ? contact.replyMessage.substring(0, 50) + '...' : '-'}
                   </td>
@@ -177,24 +239,23 @@ const AdminContactRequests = () => {
             <button disabled={page >= totalPages} onClick={() => fetchContacts(page + 1)}>Next</button>
           </div>
           <MessageModal
-        show={messageModal.show}
-        title={messageModal.title}
-        message={messageModal.message}
-        onConfirm={messageModal.onConfirm}
-        onCancel={messageModal.onCancel}
-      />
+            show={messageModal.show}
+            title={messageModal.title}
+            message={messageModal.message}
+            replyMessage={replyMessage}
+            setReplyMessage={setReplyMessage}
+            onCancel={hideMessage}
+            onReply={() => {
+              sendReply(messageModal.contact._id);
+            }}
+            isReplying={isReplying}
+            onReplyClick={() => setIsReplying(true)}
+            contactId={messageModal.contact?._id}
+          />
         </>
       )}
     </div>
   );
-
-  function showReply(contact) {
-    setReplyModal({ show: true, contact: contact });
-  }
-
-  function hideReply() {
-    setReplyModal({ show: false, contact: null });
-  }
 };
 
 export default AdminContactRequests;

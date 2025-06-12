@@ -107,16 +107,20 @@ const replyContact = async (req, res) => {
         text: replyMessage,
       };
   
-      await transporter.sendMail(mailOptions);
-  
-      // Update contact with reply info
-      contact.repliedAt = new Date();
-      contact.repliedBy = adminName;
-      contact.replyMessage = replyMessage;
-  
-      await contact.save();
-  
-      res.json({ message: "Reply sent and contact updated", contact });
+      try {
+        await transporter.sendMail(mailOptions);
+        // Update contact with reply info
+        contact.repliedAt = new Date();
+        contact.repliedBy = adminName;
+        contact.replyMessage = replyMessage;
+
+        await contact.save();
+
+        res.json({ message: "Reply sent and contact updated", contact });
+      } catch (sendError) {
+        console.error("Error sending email:", sendError);
+        res.status(500).json({ message: "Error sending email" });
+      }
     } catch (error) {
       console.error("Error replying to contact request:", error);
       res.status(500).json({ message: "Server error" });
