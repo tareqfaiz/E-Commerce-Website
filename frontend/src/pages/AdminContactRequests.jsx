@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../api/api';
 import './AdminContactRequests.css';
 import MessageModal from '../components/MessageModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const AdminContactRequests = () => {
   const [replyModal, setReplyModal] = useState({ show: false, contact: null });
@@ -16,6 +17,7 @@ const AdminContactRequests = () => {
   const [selectedContactForReply, setSelectedContactForReply] = useState(null);
   const [messageModal, setMessageModal] = useState({ show: false, title: '', contact: null, message: '' });
   const [isReplying, setIsReplying] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ show: false, contactId: null });
 
   const fetchContacts = async (pageNumber = 1) => {
     setLoading(true);
@@ -124,27 +126,24 @@ const AdminContactRequests = () => {
     });
   };
 
-  const deleteContact = async (contactId) => {
-    setSelectedContact(contactId);
-    setMessageModal({
-      show: true,
-      title: 'Confirm Delete',
-      message: 'Are you sure you want to delete this contact?',
-      onConfirm: async () => {
-        try {
-          await axios.delete(`/contact/${contactId}`, { data: { confirm: true } });
-          fetchContacts(page);
-        } catch (error) {
-          console.error('Failed to delete contact:', error);
-          alert('Failed to delete contact');
-        } finally {
-          hideMessage();
-        }
-      },
-      onCancel: () => {
-        hideMessage();
-      },
-    });
+  const deleteContact = (contactId) => {
+    setDeleteModal({ show: true, contactId });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`/contact/${deleteModal.contactId}`, { data: { confirm: true } });
+      fetchContacts(page);
+    } catch (error) {
+      console.error('Failed to delete contact:', error);
+      alert('Failed to delete contact');
+    } finally {
+      setDeleteModal({ show: false, contactId: null });
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModal({ show: false, contactId: null });
   };
 
   const hideReply = () => {
@@ -225,7 +224,11 @@ const AdminContactRequests = () => {
             </tbody>
           </table>
           {replyModal.show && replyModal.contact && (
-            <div className="message-modal">
+            <div className="message-modal" onClick={(e) => {
+              if (e.target.className === 'message-modal') {
+                hideReply();
+              }
+            }}>
               <div className="message-modal-content">
                 <span className="message-close" onClick={hideReply}>&times;</span>
                 <h3>Reply from {replyModal.contact.repliedBy}</h3>
@@ -251,6 +254,13 @@ const AdminContactRequests = () => {
             isReplying={isReplying}
             onReplyClick={() => setIsReplying(true)}
             contactId={messageModal.contact?._id}
+          />
+          <ConfirmModal
+            show={deleteModal.show}
+            title="Confirm Delete"
+            message="Are you sure you want to delete this contact request? This action cannot be undone."
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
           />
         </>
       )}
