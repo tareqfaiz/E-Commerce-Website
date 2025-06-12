@@ -164,3 +164,34 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* Reply message cell with hover effect */
+.reply-message-cell {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.reply-message-cell:hover {
+  color: #0056b3;
+}
+
+/* Increase size of reply popup */
+.message-modal-content {
+  width: 800px;
+  max-width: 95%;
+  max-height: 80vh;
+}
+
+/* Increase size of textarea in reply popup */
+.reply-section textarea {
+  width: 100%;
+  height: 150px;
+  resize: vertical;
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}

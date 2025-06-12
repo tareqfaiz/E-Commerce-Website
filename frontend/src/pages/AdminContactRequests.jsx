@@ -196,8 +196,7 @@ const AdminContactRequests = () => {
                   <td>{contact.repliedBy || '-'}</td>
                   <td>{contact.repliedAt ? new Date(contact.repliedAt).toLocaleString() : '-'}</td>
                   <td
-                    className="message-cell"
-                    style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+                    className="reply-message-cell"
                     onClick={() => {
                       if (contact.replyMessage) {
                         setReplyModal({ show: true, contact });
