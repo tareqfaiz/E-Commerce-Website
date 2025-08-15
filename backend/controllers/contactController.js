@@ -25,15 +25,40 @@ const submitContactForm = async (req, res) => {
   }
 };
 
-// Get contact requests with pagination
+// Get contact requests with pagination and filtering
 const getContactRequests = async (req, res) => {
+  console.log('getContactRequests called with query:', req.query);
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const total = await Contact.countDocuments();
-    const contacts = await Contact.find()
+    const { email, date } = req.query;
+
+    // Build filter object
+    const filter = {};
+
+    if (email) {
+      // Search email OR message content for the keyword
+      filter.$or = [
+        { email: { $regex: email, $options: 'i' } },
+        { message: { $regex: email, $options: 'i' } }
+      ];
+    }
+
+    if (date) {
+      console.log('Received date string:', date);
+      const start = new Date(date + 'T00:00:00.000Z');
+      const end = new Date(date + 'T23:59:59.999Z');
+      console.log('Computed start date:', start);
+      console.log('Computed end date:', end);
+      filter.createdAt = { $gte: start, $lte: end };
+    }
+
+    console.log('Filter applied:', filter);
+
+    const total = await Contact.countDocuments(filter);
+    const contacts = await Contact.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

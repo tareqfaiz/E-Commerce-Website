@@ -19,10 +19,23 @@ const AdminContactRequests = () => {
   const [isReplying, setIsReplying] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ show: false, contactId: null });
 
+  // New state for search filters
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchDate, setSearchDate] = useState('');
+
   const fetchContacts = async (pageNumber = 1) => {
     setLoading(true);
     try {
-      const { data } = await axios.get(`/contact?page=${pageNumber}`);
+      // Include search filters in API call
+      const params = new URLSearchParams();
+      params.append('page', pageNumber);
+      if (searchEmail.trim()) {
+        params.append('email', searchEmail.trim());
+      }
+      if (searchDate) {
+        params.append('date', searchDate);
+      }
+      const { data } = await axios.get(`/contact?${params.toString()}`);
       setContacts(data.contacts);
       setPage(data.page);
       setTotalPages(data.totalPages);
@@ -153,6 +166,24 @@ const AdminContactRequests = () => {
   return (
     <div className="admin-contact-requests">
       <h2>Contact Requests</h2>
+      {/* Search filters */}
+      <div className="search-filters">
+        <input
+          type="text"
+          placeholder="Search by email"
+          value={searchEmail}
+          onChange={(e) => setSearchEmail(e.target.value)}
+          className="search-input"
+        />
+        <input
+          type="date"
+          value={searchDate}
+          max={new Date().toISOString().split("T")[0]}  // Disable future dates
+          onChange={(e) => setSearchDate(e.target.value)}
+          className="search-input"
+        />
+        <button onClick={() => fetchContacts(1)} className="search-button">Search</button>
+      </div>
       {notification.show && (
         <div className="notification">
           {notification.message}
@@ -160,6 +191,8 @@ const AdminContactRequests = () => {
       )}
       {loading ? (
         <p>Loading...</p>
+      ) : contacts.length === 0 ? (
+        <p>There is no email on this date!</p>
       ) : (
         <>
           <table className="contact-table">
