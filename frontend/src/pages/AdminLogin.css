@@ -1,11 +1,22 @@
-.admin-login-container {
+.app-main:has(.admin-login-container) {
+  min-height: 100vh;
+  padding: 0 !important;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Center container inside */
+.admin-login-container {
+  width: 100%;
+  max-width: 400px;
   padding: 20px;
 }
+
+/* ======================
+   FORM STYLES
+   ====================== */
 
 .form-container {
   background: white;
@@ -13,7 +24,6 @@
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
 }
 
 .form-container h2 {

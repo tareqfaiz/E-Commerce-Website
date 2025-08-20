@@ -8,13 +8,15 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const adminNewsletterRoutes = require('./routes/adminNewsletterRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const passwordResetRoutes = require('./routes/passwordResetRoutes');
+const adminPasswordResetRoutes = require('./routes/adminPasswordResetRoutes');
 
 const adminRoutes = require('./routes/adminRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors());
@@ -35,6 +37,8 @@ app.use('/upload', uploadRoutes);
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
 app.use('/contact', contactRoutes);
+app.use('/password-reset', passwordResetRoutes);
+app.use('/password-reset', adminPasswordResetRoutes);
 
 // Root route to handle GET /
 app.get('/', (req, res) => {

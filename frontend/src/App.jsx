@@ -31,6 +31,9 @@ import AdminFooter from './components/AdminFooter';
 import Chatbot from './components/Chatbot';
 import AdminContactRequests from './pages/AdminContactRequests';
 
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 const OrderHistory = lazy(() => import('./pages/OrderHistory'));
 
 function App() {
@@ -54,6 +57,8 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminRedirect />} />

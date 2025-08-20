@@ -1,20 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, adminLogin, adminRegister, refreshToken } = require('../controllers/authController');
+const { registerUser, authUser, getUserProfile, updateUserProfile } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 
 // Register user
-router.post('/register', register);
+router.post('/register', registerUser);
 
 // Login user
-router.post('/login', login);
-
-// Refresh token
-router.post('/refresh-token', refreshToken);
+router.post('/login', authUser);
 
 // Admin login
-router.post('/admin/login', adminLogin);
+router.post('/admin/login', authUser);
 
-// Admin register
-router.post('/admin/register', adminRegister);
+// Get user profile
+router.get('/profile', protect, getUserProfile);
+
+// Update user profile
+router.put('/profile', protect, updateUserProfile);
 
 module.exports = router;

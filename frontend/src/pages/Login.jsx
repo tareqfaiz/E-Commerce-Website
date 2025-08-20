@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { loginUser } from '../services/api';
+import { loginUser } from '../api/api';
 import { GoogleLogin } from 'react-google-login';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 import { useAuth } from '../context/AuthContext';
@@ -39,13 +39,13 @@ function Login() {
     }
     try {
       const res = await loginUser({ email, password });
-      if (res.success && res.user) {
+      if (res.data.token) {
         // Pass the user data directly to the context
-        login(res.user);
+        login(res.data);
         showToast('Logged in successfully!');
         // The useEffect will handle navigation
       } else {
-        throw new Error(res.error || 'Login failed: Invalid credentials');
+        throw new Error(res.data.message || 'Login failed: Invalid credentials');
       }
     } catch (err) {
       setError(err.message || 'An error occurred during login.');
@@ -109,18 +109,15 @@ function Login() {
             />
         </div>
         <div className="form-footer">
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowForgotPasswordModal(true); }} className="forgot-password-link">
+            <div class="form-footer">
+            <a href="/forgot-password" class="forgot-password-link">
                 Forgot Password?
             </a>
         </div>
+        </div>
       </form>
       <Toast message={toastMessage} onClose={() => setToastMessage('')} />
-      <MessageModal
-        show={showForgotPasswordModal}
-        title="Password Reset"
-        message="Password reset functionality is not yet implemented. Please contact support for assistance."
-        onCancel={() => setShowForgotPasswordModal(false)}
-      />
+      
     </>
   );
 }

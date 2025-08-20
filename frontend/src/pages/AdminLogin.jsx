@@ -84,19 +84,14 @@ function AdminLogin() {
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
           <div className="form-footer">
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowForgotPasswordModal(true); }} className="forgot-password-link">
+            <a href="/forgot-password" className="forgot-password-link">
                 Forgot Password?
             </a>
           </div>
         </form>
         <Toast message={toastMessage} onClose={() => setToastMessage('')} />
       </div>
-      <MessageModal
-        show={showForgotPasswordModal}
-        title="Password Reset"
-        message="Password reset functionality is not yet implemented. Please contact support for assistance."
-        onCancel={() => setShowForgotPasswordModal(false)}
-      />
+      
     </>
   );
 }
