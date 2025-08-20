@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, createRoutesFromElements } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import AdminProductForm from './pages/AdminProductForm';
 import Cart from './pages/Cart';
@@ -21,6 +21,7 @@ import AdminDatabaseManagement from './pages/AdminDatabaseManagement';
 import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrderEdit from './pages/AdminOrderEdit';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRedirect from './components/AdminRedirect'; // Import the new component
 import { CartProvider } from './context/CartContext';
 import { PageProvider } from './context/PageContext';
 import Navbar from './components/Navbar';
@@ -39,22 +40,29 @@ function App() {
       <Router>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <header className="app-header">
-            {/* Conditionally render Navbar based on route */}
             <Routes>
-              {/* Render AdminNavbar for admin routes except admin login */}
               <Route path="/admin/*" element={<AdminNavbar />} />
               <Route path="/admin/login" element={null} />
-              {/* Render Customer Navbar for other routes */}
               <Route path="*" element={<Navbar />} />
             </Routes>
           </header>
           <main className="app-main" style={{ flexGrow: 1, paddingBottom: '6rem', paddingTop: window.innerWidth <= 480 ? '56px' : '64px' }}>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminRedirect />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
               <Route path="/admin/products/new" element={<AdminProductForm />} />
               <Route path="/admin/products/edit/:id" element={
                 <ProtectedRoute adminOnly={true}>
@@ -123,12 +131,8 @@ function App() {
                   <AdminContactRequests />
                 </ProtectedRoute>
               } />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/dashboard" element={
-                <ProtectedRoute adminOnly={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
+
+              {/* User Protected Routes */}
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <UserProfile />
@@ -148,14 +152,13 @@ function App() {
               } />
             </Routes>
           </main>
-          {/* Conditionally render Footer based on route */}
-          <Routes>
-            {/* Render AdminFooter for admin routes except admin login */}
-            <Route path="/admin/*" element={<AdminFooter />} />
-            <Route path="/admin/login" element={null} />
-            {/* Render Customer Footer for other routes */}
-            <Route path="*" element={<Footer />} />
-          </Routes>
+          <footer className="app-footer">
+            <Routes>
+              <Route path="/admin/*" element={<AdminFooter />} />
+              <Route path="/admin/login" element={null} />
+              <Route path="*" element={<Footer />} />
+            </Routes>
+          </footer>
           <Chatbot />
         </div>
       </Router>

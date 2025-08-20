@@ -1,59 +1,69 @@
+.admin-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
 .form-container {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
   max-width: 400px;
-  margin: 80px auto 40px;
-  padding: 40px 30px;
-  background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(24, 40, 72, 0.8);
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: #e0e6f0;
-  user-select: none;
 }
 
 .form-container h2 {
-  margin-bottom: 30px;
-  font-weight: 700;
-  font-size: 2rem;
   text-align: center;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
 }
 
 .form-input {
   width: 100%;
-  padding: 14px 18px;
-  margin-bottom: 25px;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  transition: box-shadow 0.3s ease;
-  box-shadow: inset 0 0 8px rgba(24, 40, 72, 0.6);
-  background-color: #f5f7fa;
-  color: #34495e;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
 }
 
 .form-input:focus {
   outline: none;
-  box-shadow: 0 0 12px rgba(75, 108, 183, 0.9);
-  background-color: white;
+  border-color: #667eea;
 }
 
 .form-button {
   width: 100%;
-  padding: 14px 0;
-  background: linear-gradient(90deg, #ff6a00, #ee0979);
-  border: none;
-  border-radius: 10px;
+  padding: 12px;
+  background-color: #667eea;
   color: white;
-  font-weight: 700;
-  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  user-select: none;
-  box-shadow: 0 4px 12px rgba(238, 9, 121, 0.7);
+  transition: background-color 0.3s ease;
 }
 
-.form-button:hover {
-  background: linear-gradient(90deg, #ee0979, #ff6a00);
-  box-shadow: 0 0 16px rgba(238, 9, 121, 0.9);
+.form-button:hover:not(:disabled) {
+  background-color: #5a6fd8;
+}
+
+.form-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.form-button.loading {
+  background-color: #cccccc;
+  cursor: wait;
 }

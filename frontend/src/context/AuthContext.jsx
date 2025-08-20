@@ -1,107 +1,61 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import API from '../services/api';
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setIsAuthenticated(!!user);
-  }, [user]);
-
-  const login = async (userData) => {
-    setLoading(true);
-    try {
-      if (userData) {
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        setLoading(false);
-        return;
-      }
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await API.get('/users/profile', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const freshUserData = response.data;
-          setUser(freshUserData);
-          localStorage.setItem('user', JSON.stringify(freshUserData));
-        } catch (error) {
-          if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            logout();
-          }
-          setUser(null);
-          localStorage.removeItem('user');
-        }
-      } else {
-        setUser(null);
-        localStorage.removeItem('user');
-      }
-    } catch (error) {
-      setUser(null);
-      localStorage.removeItem('user');
-    }
-    setLoading(false);
-  };
-
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
+    setIsAuthenticated(false);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+  }, []);
+
+  // This function is called when a user logs in successfully
+  const login = (userData) => {
+    const token = userData.token;
+    if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        setIsAuthenticated(true);
+    }
   };
 
-  // New function to refresh token
-  const refreshToken = useCallback(async () => {
-    try {
-      const response = await API.post('/auth/refresh-token', {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-      if (response.status === 200 && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        return true;
-      }
-    } catch (error) {
-      logout();
-      return false;
-    }
-  }, []);
-
-  // Periodically refresh token every 10 minutes
+  // This function runs on initial page load to check for an existing session
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (user) {
-        refreshToken();
-      }
-    }, 10 * 60 * 1000); // 10 minutes
-    return () => clearInterval(interval);
-  }, [user, refreshToken]);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = JSON.parse(atob(token.split('.')[1]));
-        if (decoded.exp * 1000 < Date.now()) {
-          logout();
+    const verifyExistingSession = async () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                if (decoded.exp * 1000 < Date.now()) {
+                    logout();
+                } else {
+                    // If token is valid, trust the user data in local storage for initial render
+                    const storedUser = localStorage.getItem('user');
+                    if (storedUser) {
+                        const userData = JSON.parse(storedUser);
+                        setUser(userData);
+                        setIsAuthenticated(true);
+                    }
+                }
+            } catch (error) {
+                logout();
+            }
         }
-      } catch (error) {
-        logout();
-      }
-    }
-  }, []);
+        setLoading(false);
+    };
+    verifyExistingSession();
+  }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading, refreshToken }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );
