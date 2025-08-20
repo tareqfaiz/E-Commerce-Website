@@ -20,6 +20,7 @@ import AdminDeliveryManagement from './pages/AdminDeliveryManagement';
 import AdminDatabaseManagement from './pages/AdminDatabaseManagement';
 import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrderEdit from './pages/AdminOrderEdit';
+import AdminCustomerEdit from './pages/AdminCustomerEdit';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRedirect from './components/AdminRedirect'; // Import the new component
 import { CartProvider } from './context/CartContext';
@@ -93,6 +94,13 @@ function App() {
                 <ProtectedRoute adminOnly={true}>
                   <React.Suspense fallback={<div>Loading...</div>}>
                     <AdminCustomerManagement />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/customers/edit/:id" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminCustomerEdit />
                   </React.Suspense>
                 </ProtectedRoute>
               } />
