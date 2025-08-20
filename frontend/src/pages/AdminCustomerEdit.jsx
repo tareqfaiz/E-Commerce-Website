@@ -6,18 +6,23 @@ import './AdminCustomerEdit.css';
 const AdminCustomerEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isNewCustomer = !id;
+  
   const [customer, setCustomer] = useState({
     name: '',
     email: '',
+    password: '',
     address: '',
     phone: ''
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isNewCustomer);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    fetchCustomer();
+    if (!isNewCustomer) {
+      fetchCustomer();
+    }
   }, [id]);
 
   const fetchCustomer = async () => {
@@ -43,14 +48,19 @@ const AdminCustomerEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.put(`/users/${id}`, customer);
-      setSuccess('Customer updated successfully!');
+      if (isNewCustomer) {
+        await api.post('/users', customer);
+        setSuccess('Customer created successfully!');
+      } else {
+        await api.put(`/users/${id}`, customer);
+        setSuccess('Customer updated successfully!');
+      }
       setTimeout(() => {
         navigate('/admin/customers');
       }, 2000);
     } catch (error) {
-      console.error('Error updating customer:', error);
-      setError(error.response?.data?.message || 'Failed to update customer');
+      console.error('Error saving customer:', error);
+      setError(error.response?.data?.message || `Failed to ${isNewCustomer ? 'create' : 'update'} customer`);
     }
   };
 
@@ -77,7 +87,7 @@ const AdminCustomerEdit = () => {
   return (
     <div className="admin-customer-edit">
       <div className="edit-header">
-        <h2>Edit Customer</h2>
+        <h2>{isNewCustomer ? 'Add New Customer' : 'Edit Customer'}</h2>
         <button className="back-button" onClick={() => navigate('/admin/customers')}>
           ← Back to Customers
         </button>
@@ -113,6 +123,22 @@ const AdminCustomerEdit = () => {
           />
         </div>
 
+        {isNewCustomer && (
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={customer.password}
+              onChange={handleChange}
+              required={isNewCustomer}
+              className="form-input"
+              placeholder="Enter password for new customer"
+            />
+          </div>
+        )}
+
         <div className="form-group">
           <label htmlFor="address">Address</label>
           <textarea
@@ -141,11 +167,13 @@ const AdminCustomerEdit = () => {
 
         <div className="form-actions">
           <button type="submit" className="save-button">
-            Save Changes
+            {isNewCustomer ? 'Create Customer' : 'Save Changes'}
           </button>
-          <button type="button" className="delete-button" onClick={handleDelete}>
-            Delete Customer
-          </button>
+          {!isNewCustomer && (
+            <button type="button" className="delete-button" onClick={handleDelete}>
+              Delete Customer
+            </button>
+          )}
           <button type="button" className="cancel-button" onClick={() => navigate('/admin/customers')}>
             Cancel
           </button>

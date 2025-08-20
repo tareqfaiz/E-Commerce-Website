@@ -97,6 +97,13 @@ function App() {
                   </React.Suspense>
                 </ProtectedRoute>
               } />
+              <Route path="/admin/customers/new" element={
+                <ProtectedRoute adminOnly={true}>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <AdminCustomerEdit />
+                  </React.Suspense>
+                </ProtectedRoute>
+              } />
               <Route path="/admin/customers/edit/:id" element={
                 <ProtectedRoute adminOnly={true}>
                   <React.Suspense fallback={<div>Loading...</div>}>
