@@ -14,14 +14,16 @@ function AdminOrderManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (!isAuthenticated || !user?.isAdmin) {
       navigate('/admin/login');
       return;
     }
-    fetchOrders();
-  }, [isAuthenticated, user, navigate]);
+    fetchOrders(currentPage);
+  }, [isAuthenticated, user, navigate, currentPage]);
 
   useEffect(() => {
     if (searchTerm.trim() === '') {
@@ -34,11 +36,14 @@ function AdminOrderManagement() {
     }
   }, [searchTerm, orders]);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page) => {
     try {
-      const response = await api.get('/orders/admin/all');
-      setOrders(response.data);
-      setFilteredOrders(response.data);
+      setLoading(true);
+      const response = await api.get(`/orders/admin/all?page=${page}`);
+      setOrders(response.data.orders);
+      setFilteredOrders(response.data.orders);
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.currentPage);
       setLoading(false);
     } catch (err) {
       setError('Failed to fetch orders');
@@ -76,6 +81,12 @@ function AdminOrderManagement() {
     navigate('/admin/orders/new');
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <>
       <AdminNavbar />
@@ -96,63 +107,80 @@ function AdminOrderManagement() {
         ) : error ? (
           <p className="error-message">{error}</p>
         ) : (
-          <table className="order-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Phone Number</th>
-                <th>Order Date</th>
-                <th>Items</th>
-                <th>Total Price</th>
-                <th>Payment</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.filter(order => order != null).map(order => {
-                const orderDate = new Date(order.createdAt).toLocaleString();
-                return (
-                  <tr key={order._id}>
-                    <td>{order._id}</td>
-                    <td>{order.phoneNumber || order.user?.phone || 'N/A'}</td>
-                    <td>{orderDate}</td>
-                    <td>
-                      {order.orderItems.map((item, index) => (
-                        <div key={item._id || `${item.product?._id}-${index}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
-                          <img
-                            src={item.product && item.product.image ? (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image.startsWith('/') ? '' : '/'}${item.product.image}`) : 'https://via.placeholder.com/40'}
-                            alt={item.product ? item.product.title : 'Unknown Product'}
-                            style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '10px' }}
-                          />
-                          <div>
-                            <div>{item.product ? item.product.title : 'Unknown Product'}</div>
-                            <div>Size: {item.size}</div>
-                            <div>Qty: {item.quantity}</div>
-                            <div>Unit Price: ${item.price.toFixed(2)}</div>
+          <>
+            <table className="order-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Phone Number</th>
+                  <th>Order Date</th>
+                  <th>Items</th>
+                  <th>Total Price</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.filter(order => order != null).map(order => {
+                  const orderDate = new Date(order.createdAt).toLocaleString();
+                  return (
+                    <tr key={order._id}>
+                      <td>{order._id}</td>
+                      <td>{order.phoneNumber || order.user?.phone || 'N/A'}</td>
+                      <td>{orderDate}</td>
+                      <td>
+                        {order.orderItems.map((item, index) => (
+                          <div key={item._id || `${item.product?._id}-${index}`} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+                            <img
+                              src={item.product && item.product.image ? (item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image.startsWith('/') ? '' : '/'}${item.product.image}`) : 'https://via.placeholder.com/40'}
+                              alt={item.product ? item.product.title : 'Unknown Product'}
+                              style={{ width: '40px', height: '40px', objectFit: 'cover', marginRight: '10px' }}
+                            />
+                            <div>
+                              <div>{item.product ? item.product.title : 'Unknown Product'}</div>
+                              <div>Size: {item.size}</div>
+                              <div>Qty: {item.quantity}</div>
+                              <div>Unit Price: ${item.price.toFixed(2)}</div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </td>
-                    <td>${order.totalPrice.toFixed(2)}</td>
-                    <td>{order.paymentMethod}</td>
-                    <td>
-                      {order.status === 'accepted' ? (
-                        <span className="status accepted">Accepted</span>
-                      ) : order.status === 'rejected' ? (
-                        <span className="status rejected">Rejected</span>
-                      ) : (
-                        <>
-                          <button className="accept-button" onClick={(e) => handleAccept(e, order._id)}>Accept</button>
-                          <button className="reject-button" onClick={(e) => handleReject(e, order._id)}>Reject</button>
-                        </>
-                      )}
-                      <button className="edit-button" onClick={() => handleEdit(order._id)}>Edit</button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        ))}
+                      </td>
+                      <td>${order.totalPrice.toFixed(2)}</td>
+                      <td>{order.paymentMethod}</td>
+                      <td>
+                        {order.status === 'accepted' ? (
+                          <span className="status accepted">Accepted</span>
+                        ) : order.status === 'rejected' ? (
+                          <span className="status rejected">Rejected</span>
+                        ) : (
+                          <>
+                            <button className="accept-button" onClick={(e) => handleAccept(e, order._id)}>Accept</button>
+                            <button className="reject-button" onClick={(e) => handleReject(e, order._id)}>Reject</button>
+                          </>
+                        )}
+                        <button className="edit-button" onClick={() => handleEdit(order._id)}>Edit</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className="pagination-controls">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              <span>Page {currentPage} of {totalPages}</span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
       </div>
       <AdminFooter />

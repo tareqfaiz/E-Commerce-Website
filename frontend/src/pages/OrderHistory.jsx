@@ -17,7 +17,7 @@ function OrderHistory() {
           setLoading(false);
           return;
         }
-        const response = await API.get(`/orders?cacheBust=${Date.now()}`, {
+        const response = await API.get(`/orders/myorders?cacheBust=${Date.now()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('Orders data:', response.data); // Debug log
