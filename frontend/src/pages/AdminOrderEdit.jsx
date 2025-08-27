@@ -55,7 +55,7 @@ function AdminOrderEdit() {
         ...order,
         orderItems,
       };
-      await api.put(`/orders/${id}`, updatedOrder);
+      api.put(`/orders/${id}`, updatedOrder);
       navigate('/admin/orders');
     } catch (err) {
       setError('Failed to update order');

@@ -145,8 +145,13 @@ exports.updateOrder = async (req, res) => {
     }
 
     const updatedOrder = await order.save();
-    const populatedOrder = await updatedOrder.populate('orderItems.product', 'title image').populate('user', 'phone');
-    res.json(populatedOrder);
+    try {
+        const populatedOrder = await updatedOrder.populate('orderItems.product', 'title image').populate('user', 'phone');
+        res.json(populatedOrder);
+    } catch (populateError) {
+        console.error("Error populating order after update:", populateError);
+        res.json(updatedOrder);
+    }
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

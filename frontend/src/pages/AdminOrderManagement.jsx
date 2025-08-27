@@ -53,11 +53,32 @@ function AdminOrderManagement() {
 
   const updateOrderStatus = async (id, status) => {
     try {
-      const response = await api.put(`/orders/${id}`, { status });
-      // Update orders state with updated order data
-      setOrders(prevOrders => prevOrders.map(order => (order._id === id ? response.data : order)));
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/orders/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Network response was not ok and no error message from server' }));
+        throw new Error(errorData.message);
+      }
+
+      const updatedOrder = await response.json();
+
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === id ? updatedOrder : order
+        )
+      );
+      setError(''); // Clear any previous errors
     } catch (err) {
-      setError('Failed to update order status');
+      console.error("Failed to update order status:", err);
+      setError(err.message || 'Failed to update order status. Please refresh.');
     }
   };
 
