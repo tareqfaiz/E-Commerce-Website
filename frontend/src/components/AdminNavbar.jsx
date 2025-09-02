@@ -24,6 +24,7 @@ function AdminNavbar() {
     <nav className="admin-navbar">
       <Link to="/admin/dashboard" className="admin-navbar-home">Admin Home</Link>
       <div className="admin-navbar-right">
+        {user && user.name && <span className="admin-name">Welcome, {user.name}</span>}
         <button className="admin-navbar-logout" onClick={handleLogout}>Logout</button>
       </div>
     </nav>

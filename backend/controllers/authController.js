@@ -29,6 +29,7 @@ const registerUser = asyncHandler(async (req, res) => {
       address: user.address,
       phone: user.phone,
       isAdmin: user.isAdmin,
+      role: user.role,
       token: generateToken(user._id),
     });
   } else {
@@ -53,6 +54,7 @@ const authUser = asyncHandler(async (req, res) => {
       address: user.address,
       phone: user.phone,
       isAdmin: user.isAdmin,
+      role: user.role,
       token: generateToken(user._id),
     });
   } else {
@@ -75,6 +77,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       address: user.address,
       phone: user.phone,
       isAdmin: user.isAdmin,
+      role: user.role,
     });
   } else {
     res.status(404);
@@ -107,6 +110,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       address: updatedUser.address,
       phone: updatedUser.phone,
       isAdmin: updatedUser.isAdmin,
+      role: updatedUser.role,
       token: generateToken(updatedUser._id),
     });
   } else {

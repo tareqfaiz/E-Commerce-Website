@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
+import AdminRegister from './pages/AdminRegister'; // Import AdminRegister
 import Products from './pages/Products';
 import UserProfile from './pages/UserProfile';
 import UpdateUserInfo from './pages/UpdateUserInfo';
@@ -21,6 +22,8 @@ import AdminDatabaseManagement from './pages/AdminDatabaseManagement';
 import AdminProductEdit from './pages/AdminProductEdit';
 import AdminOrderEdit from './pages/AdminOrderEdit';
 import AdminCustomerEdit from './pages/AdminCustomerEdit';
+import AdminEdit from './pages/AdminEdit'; // Import AdminEdit
+import AdminOrderForm from './pages/AdminOrderForm'; // Import AdminOrderForm
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRedirect from './components/AdminRedirect'; // Import the new component
 import { CartProvider } from './context/CartContext';
@@ -64,6 +67,11 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminRedirect />} />
               <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/register" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminRegister />
+                </ProtectedRoute>
+              } />
               <Route path="/admin/dashboard" element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminDashboard />
@@ -88,6 +96,16 @@ function App() {
               <Route path="/admin/admins" element={
                 <ProtectedRoute adminOnly={true}>
                   <AdminManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/admins/edit/:id" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminEdit />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/orders/new" element={
+                <ProtectedRoute adminOnly={true}>
+                  <AdminOrderForm />
                 </ProtectedRoute>
               } />
               <Route path="/admin/customers" element={
@@ -116,6 +134,7 @@ function App() {
                   <React.Suspense fallback={<div>Loading...</div>}>
                     <AdminOrderManagement />
                   </React.Suspense>
+                
                 </ProtectedRoute>
               } />
               <Route path="/admin/orders/edit/:id" element={

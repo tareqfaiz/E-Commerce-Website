@@ -59,6 +59,9 @@ const orderSchema = new mongoose.Schema({
       timestamp: { type: Date, default: Date.now },
     },
   ],
+  createdByAdmin: { type: Boolean, default: false },
+  adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  adminName: { type: String },
 }, { timestamps: true });
 
 // Virtual for status color

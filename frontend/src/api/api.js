@@ -24,6 +24,9 @@ export const loginUser = (data) => API.post('/auth/login', data);
 // Admin login
 export const adminLogin = (data) => API.post('/auth/admin/login', data);
 
+// Admin registration (by superadmin)
+export const adminRegister = (data) => API.post('/admin/register', data);
+
 // User registration
 export async function registerUser(data) {
   try {

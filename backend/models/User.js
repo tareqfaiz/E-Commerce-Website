@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
     default: '',
     trim: true,
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'superadmin'],
+    default: 'user',
+  },
   isAdmin: {
     type: Boolean,
     default: false,
@@ -44,14 +49,18 @@ const userSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-// Hash password before saving
+// pre-save hook to sync isAdmin and hash password
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
+  if (this.isModified('role')) {
+    this.isAdmin = ['admin', 'superadmin'].includes(this.role);
+  }
+
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
   }
   
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 // Compare password method

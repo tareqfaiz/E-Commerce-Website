@@ -101,3 +101,8 @@
   margin-top: 20px;
   user-select: none;
 }
+
+.blurred-email {
+  filter: blur(4px);
+  pointer-events: none; /* Prevent selection */
+}

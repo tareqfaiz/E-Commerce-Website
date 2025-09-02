@@ -14,6 +14,11 @@ function AdminManagement() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Remove console.log after debugging
+    // console.log('User from useAuth in AdminManagement:', user);
+  }, [user]);
+
+  useEffect(() => {
     if (!isAuthenticated || !user?.isAdmin) {
       navigate('/admin/login');
       return;
@@ -56,7 +61,9 @@ function AdminManagement() {
       <div className="admin-management">
         <header className="admin-header">
           <h1>Admin Management</h1>
-          <button className="add-admin-button" onClick={handleAddNew}>Add New Admin</button>
+          {user?.role === 'superadmin' && (
+            <button className="add-admin-button" onClick={handleAddNew}>Add New Admin</button>
+          )}
         </header>
         {loading ? (
           <p>Loading admins...</p>
@@ -76,11 +83,15 @@ function AdminManagement() {
               {admins.map(admin => (
                 <tr key={admin._id}>
                   <td>{admin.name}</td>
-                  <td>{admin.email}</td>
-                  <td>{admin.isAdmin ? 'Admin' : 'User'}</td>
+                  <td className={user?.role !== 'superadmin' ? 'blurred-email' : ''}>{admin.email}</td>
+                  <td>{admin.role}</td>
                   <td>
-                    <button className="edit-button" onClick={() => handleEdit(admin._id)}>Edit</button>
-                    <button className="delete-button" onClick={() => handleDelete(admin._id)}>Delete</button>
+                    {user?.role === 'superadmin' && (
+                      <>
+                        <button className="edit-button" onClick={() => handleEdit(admin._id)}>Edit</button>
+                        <button className="delete-button" onClick={() => handleDelete(admin._id)}>Delete</button>
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}

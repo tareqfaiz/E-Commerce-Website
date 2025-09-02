@@ -1,9 +1,11 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
 
 // Create new order
 exports.addOrder = async (req, res) => {
   const {
+    user, // This is the customer's ID, sent from admin form
     orderItems,
     shippingAddress,
     paymentMethod,
@@ -20,6 +22,11 @@ exports.addOrder = async (req, res) => {
   }
 
   try {
+    const isAdminCreatingOrder = req.user.role === 'admin' || req.user.role === 'superadmin';
+    const customerId = isAdminCreatingOrder && user ? user : req.user._id;
+
+    console.log('Customer ID:', customerId);
+
     // Validate orderItems to ensure size is present
     const validatedOrderItems = orderItems.map(item => ({
       product: item.product,
@@ -28,18 +35,24 @@ exports.addOrder = async (req, res) => {
       price: item.price,
     }));
 
-    // Fetch user from DB
-    const user = await require('../models/User').findById(req.user._id);
+    // Fetch customer from DB
+    const customerUser = await User.findById(customerId);
 
-    // Update user phone number if updatePhoneNumber flag is true and phoneNumber is different
-    if (updatePhoneNumber && phoneNumber && user.phone !== phoneNumber) {
-      user.phone = phoneNumber;
-      await user.save();
+    console.log('Customer user from DB:', customerUser);
+
+    if (!customerUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user phone number if requested
+    if (updatePhoneNumber && phoneNumber && customerUser.phone !== phoneNumber) {
+      customerUser.phone = phoneNumber;
+      await customerUser.save();
     }
 
     const order = new Order({
-      user: req.user._id,
-      phoneNumber: phoneNumber || (user ? user.phone : ''),
+      user: customerId,
+      phoneNumber: phoneNumber || (customerUser ? customerUser.phone : ''),
       orderItems: validatedOrderItems,
       shippingAddress,
       paymentMethod,
@@ -52,9 +65,12 @@ exports.addOrder = async (req, res) => {
       statusHistory: [{
         status: 'pending',
         timestamp: new Date(),
-        adminName: 'System',
+        adminName: isAdminCreatingOrder ? req.user.name : 'System',
         note: 'Order created',
-      }]
+      }],
+      createdByAdmin: isAdminCreatingOrder, // Set based on who is creating the order
+      adminId: isAdminCreatingOrder ? req.user._id : null, // Store the admin's ID if applicable
+      adminName: isAdminCreatingOrder ? req.user.name : null, // Store the admin's name if applicable
     });
 
     const createdOrder = await order.save();
@@ -70,7 +86,7 @@ exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate('user', 'name email phone');
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: 'Order not Judicial not found' });
     }
     res.json(order);
   } catch (error) {
@@ -82,7 +98,7 @@ exports.getOrderById = async (req, res) => {
 // Get orders for logged in user
 exports.getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id }).populate('orderItems.product', 'title image').populate('user', 'phone');
+    const orders = await Order.find({ $or: [{ user: req.user._id }, { createdByAdmin: true, user: req.user._id }] }).populate('orderItems.product', 'title image').populate('user', 'name email phone');
     console.log('Fetched orders with populated products:', JSON.stringify(orders, null, 2)); // Debug log
     res.json(orders);
   } catch (error) {
@@ -102,7 +118,7 @@ exports.updateOrder = async (req, res) => {
     const { status, note, ...otherUpdates } = req.body;
 
     // Handle status updates
-    if (status && ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded', 'accepted', 'rejected', 'edited'].includes(status)) {
+    if (status && ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded', 'accepted', 'rejected'].includes(status)) {
       order.status = status;
       
       // Add to status history
@@ -146,9 +162,10 @@ exports.updateOrder = async (req, res) => {
 
     const updatedOrder = await order.save();
     try {
-        const populatedOrder = await updatedOrder.populate('orderItems.product', 'title image').populate('user', 'phone');
+        const populatedOrder = await updatedOrder.populate('orderItems.product', 'title image').populate('user', 'name email phone');
         res.json(populatedOrder);
-    } catch (populateError) {
+    }
+    catch (populateError) {
         console.error("Error populating order after update:", populateError);
         res.json(updatedOrder);
     }
@@ -393,7 +410,7 @@ function getStatusIcon(status) {
     rejected: '❌',
     edited: '✏️',
   };
-  return iconMap[status] || '📋';
+  return iconMap[this.status] || '📋';
 }
 
 function getStatusDescription(status) {
@@ -408,5 +425,5 @@ function getStatusDescription(status) {
     rejected: 'Order has been rejected by admin',
     edited: 'Order has been edited by admin',
   };
-  return descriptionMap[status] || 'Unknown status';
+  return descriptionMap[this.status] || 'Unknown status';
 }
