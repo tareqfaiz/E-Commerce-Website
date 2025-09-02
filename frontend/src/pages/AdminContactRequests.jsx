@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../api/api';
+import api from '../api/api';
 import './AdminContactRequests.css';
 import MessageModal from '../components/MessageModal';
 import ConfirmModal from '../components/ConfirmModal';
@@ -35,7 +35,7 @@ const AdminContactRequests = () => {
       if (searchDate) {
         params.append('date', searchDate);
       }
-      const { data } = await axios.get(`/contact?${params.toString()}`);
+      const { data } = await api.get(`/contact?${params.toString()}`);
       setContacts(data.contacts);
       setPage(data.page);
       setTotalPages(data.totalPages);
@@ -52,7 +52,7 @@ const AdminContactRequests = () => {
 
   const markAsRead = async (contactId, read) => {
     try {
-      await axios.patch(`/contact/${contactId}/read`, { read });
+      await api.patch(`/contact/${contactId}/read`, { read });
       fetchContacts(page);
     } catch (error) {
       console.error('Failed to update read status:', error);
@@ -67,7 +67,7 @@ const AdminContactRequests = () => {
       return;
     }
     try {
-      await axios.post(`/contact/${contactId}/reply`, {
+      await api.post(`/contact/${contactId}/reply`, {
         replyMessage,
         adminName,
       });
@@ -97,7 +97,7 @@ const AdminContactRequests = () => {
     setIsReplying(false);
     if (!contact.read) {
       try {
-        await axios.patch(`/contact/${contact._id}/read`, { read: true });
+        await api.patch(`/contact/${contact._id}/read`, { read: true });
         fetchContacts(page);
       } catch (error) {
         console.error('Failed to update read status:', error);
@@ -145,7 +145,7 @@ const AdminContactRequests = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`/contact/${deleteModal.contactId}`, { data: { confirm: true } });
+      await api.delete(`/contact/${deleteModal.contactId}`, { data: { confirm: true } });
       fetchContacts(page);
     } catch (error) {
       console.error('Failed to delete contact:', error);
