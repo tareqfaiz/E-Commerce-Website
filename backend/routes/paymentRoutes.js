@@ -8,7 +8,7 @@ const {
   updatePayment,
   deletePayment,
 } = require('../controllers/paymentController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, superadmin } = require('../middleware/authMiddleware');
 
 router.post('/create-payment-intent', protect, createPaymentIntent);
 
@@ -17,6 +17,6 @@ router.post('/', protect, admin, createPayment);
 router.get('/', protect, admin, getPayments);
 router.get('/:id', protect, admin, getPaymentById);
 router.put('/:id', protect, admin, updatePayment);
-router.delete('/:id', protect, admin, deletePayment);
+router.delete('/:id', protect, superadmin, deletePayment);
 
 module.exports = router;

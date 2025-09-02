@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const API = axios.create({
-  baseURL: 'http://localhost:5000', // Adjust backend URL as needed
+  baseURL: API_BASE_URL,
 });
 
 // Add a request interceptor to include token in headers
@@ -22,6 +24,21 @@ export const loginUser = (data) => API.post('/auth/login', data);
 // Admin login
 export const adminLogin = (data) => API.post('/auth/admin/login', data);
 
-// Other API calls...
+// Admin registration (by superadmin)
+export const adminRegister = (data) => API.post('/admin/register', data);
+
+// User registration
+export async function registerUser(data) {
+  try {
+    const response = await API.post('/auth/register', data);
+    return { success: true, user: response.data };
+  } catch (error) {
+    return { success: false, error: error.response?.data?.message || error.message };
+  }
+}
+
+export const requestPasswordReset = (data) => API.post('/password-reset/forgot-password', data);
+
+export const resetPassword = (token, data) => API.post(`/password-reset/reset-password/${token}`, data);
 
 export default API;

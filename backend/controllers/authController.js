@@ -1,124 +1,127 @@
+const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const generateToken = require('../utils/generateToken');
 
-exports.register = async (req, res) => {
+// @desc    Register a new user
+// @route   POST /api/auth/register
+// @access  Public
+const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-    const token = generateToken(user._id);
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email, token });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    console.log('Login attempt for email:', email);
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log('User not found for email:', email);
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      console.log('Password mismatch for email:', email);
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-    const token = generateToken(user._id);
-    console.log('Login successful for email:', email);
-    res.json({ 
-      _id: user._id, 
-      name: user.name, 
-      email: user.email, 
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    res.status(400);
+    throw new Error('User already exists');
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+  });
+
+  if (user) {
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
       address: user.address,
       phone: user.phone,
-      token 
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.adminLogin = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (!user || !user.isAdmin) {
-      return res.status(401).json({ message: 'Invalid admin credentials' });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid admin credentials' });
-    }
-    const token = generateToken(user._id);
-    res.json({ 
-      _id: user._id, 
-      name: user.name, 
-      email: user.email, 
       isAdmin: user.isAdmin,
-      token 
+      role: user.role,
+      token: generateToken(user._id),
     });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.adminRegister = async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'Admin user already exists' });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      isAdmin: true,
-    });
-    const token = generateToken(user._id);
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin, token });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.refreshToken = async (req, res) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      // Optionally, check if user still exists
-      const user = await User.findById(decoded.id);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      const newToken = generateToken(user._id);
-      res.json({ token: newToken });
-    } catch (error) {
-      console.error('Refresh token verification failed:', error.message);
-      res.status(401).json({ message: 'Not authorized, token failed' });
-    }
   } else {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    res.status(400);
+    throw new Error('Invalid user data');
   }
+});
+
+// @desc    Auth user & get token
+// @route   POST /api/auth/login
+// @access  Public
+const authUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.matchPassword(password))) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      address: user.address,
+      phone: user.phone,
+      isAdmin: user.isAdmin,
+      role: user.role,
+      token: generateToken(user._id),
+    });
+  } else {
+    res.status(401);
+    throw new Error('Invalid email or password');
+  }
+});
+
+// @desc    Get user profile
+// @route   GET /api/auth/profile
+// @access  Private
+const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      address: user.address,
+      phone: user.phone,
+      isAdmin: user.isAdmin,
+      role: user.role,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.address = req.body.address || user.address;
+    user.phone = req.body.phone || user.phone;
+
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      address: updatedUser.address,
+      phone: updatedUser.phone,
+      isAdmin: updatedUser.isAdmin,
+      role: updatedUser.role,
+      token: generateToken(updatedUser._id),
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+module.exports = {
+  registerUser,
+  authUser,
+  getUserProfile,
+  updateUserProfile,
 };

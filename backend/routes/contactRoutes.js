@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const { protect, superadmin } = require('../middleware/authMiddleware');
 const {
   submitContactForm,
   getContactRequests,
   markContactRead,
   replyContact,
+  deleteContact,
 } = require('../controllers/contactController');
 
 // POST /contact - submit contact form
@@ -19,9 +21,7 @@ router.patch('/:id/read', markContactRead);
 // POST /contact/:id/reply - send reply email and log admin info
 router.post('/:id/reply', replyContact);
 
-const { deleteContact } = require('../controllers/contactController');
-
 // DELETE /contact/:id - delete contact request
-router.delete('/:id', deleteContact);
+router.delete('/:id', protect, superadmin, deleteContact);
 
 module.exports = router;

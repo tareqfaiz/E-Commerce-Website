@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import API from '../services/api';
+import API from '../api/api';
 import './PhotoCarousel.css';
 
 const BACKEND_BASE_URL = import.meta.env.VITE_API_URL;

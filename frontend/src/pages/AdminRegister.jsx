@@ -27,15 +27,16 @@ function AdminRegister() {
       return;
     }
     try {
-      const response = await api.adminRegister({ name, email, password });
-      if (response.data && response.data.success) {
-        showToast('Admin registered successfully');
-        navigate('/admin/login');
-      } else {
-        showToast('Registration failed');
-      }
+      await api.adminRegister({ name, email, password });
+      showToast('Admin registered successfully');
+      // Optionally, navigate to another page or clear the form
+      setName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
     } catch (error) {
-      showToast('Registration failed: ' + error.message);
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      showToast(errorMessage);
     }
   };
 

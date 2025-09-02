@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext, useEffect, useState } from 'react';
-import API from '../services/api';
+import API from '../api/api';
 
 const CartContext = createContext();
 

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './UserProfile.css';
 
 function UpdateUserInfo() {
-  const { user, login, logout, refreshToken } = useAuth();
+  const { user, login, logout } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -44,7 +44,7 @@ function UpdateUserInfo() {
         phone: formData.phone,
       };
       const token = localStorage.getItem('token');
-      let response = await API.put('/users/profile', updateData, {
+      let response = await API.put('/auth/profile', updateData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.status === 200) {
@@ -52,20 +52,6 @@ function UpdateUserInfo() {
         login({ ...user, ...updateData });
         navigate('/profile');
       } else if (response.status === 401 || response.status === 403) {
-        // Try refreshing token once before logout
-        const refreshed = await refreshToken();
-        if (refreshed) {
-          const newToken = localStorage.getItem('token');
-          response = await API.put('/users/profile', updateData, {
-            headers: { Authorization: `Bearer ${newToken}` },
-          });
-          if (response.status === 200) {
-            setMessage('Profile updated successfully');
-            login({ ...user, ...updateData });
-            navigate('/profile');
-            return;
-          }
-        }
         setMessage('Session expired. Please log in again.');
         logout();
         navigate('/login');
@@ -74,28 +60,6 @@ function UpdateUserInfo() {
       }
     } catch (error) {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-        // Try refreshing token once before logout
-        const refreshed = await refreshToken();
-        if (refreshed) {
-          const newToken = localStorage.getItem('token');
-          try {
-            const retryResponse = await API.put('/users/profile', {
-              name: formData.name,
-              address: formData.address,
-              phone: formData.phone,
-            }, {
-              headers: { Authorization: `Bearer ${newToken}` },
-            });
-            if (retryResponse.status === 200) {
-              setMessage('Profile updated successfully');
-              login({ ...user, ...formData });
-              navigate('/profile');
-              return;
-            }
-          } catch (retryError) {
-            // fall through to logout below
-          }
-        }
         setMessage('Session expired. Please log in again.');
         logout();
         navigate('/login');

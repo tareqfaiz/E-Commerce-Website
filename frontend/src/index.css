@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Form styles */
 .form-container {
   max-width: 400px;
-  margin: 2rem auto;
+  margin: 2rem auto 8rem auto;
   padding: var(--spacing-md);
   background-color: var(--color-white);
   border-radius: var(--border-radius);

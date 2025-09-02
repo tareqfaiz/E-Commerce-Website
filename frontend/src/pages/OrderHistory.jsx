@@ -17,10 +17,10 @@ function OrderHistory() {
           setLoading(false);
           return;
         }
-        const response = await API.get(`/orders?cacheBust=${Date.now()}`, {
+        const response = await API.get(`/orders/myorders?cacheBust=${Date.now()}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log('Orders data:', response.data); // Debug log
+        console.log('Orders data:', response.data);
         setOrders(response.data);
         setLoading(false);
       } catch (err) {
@@ -55,6 +55,7 @@ function OrderHistory() {
               <th>Total Price</th>
               <th>Paid</th>
               <th>Order Status</th>
+              <th>Created By</th> {/* New column */}
             </tr>
           </thead>
           <tbody>
@@ -93,6 +94,13 @@ function OrderHistory() {
                 </td>
                 <td>{order.isPaid ? 'Yes' : 'No'}</td>
                 <td>{displayStatus}</td>
+                <td>
+                  {order.createdByAdmin ? (
+                    <span>Admin ({order.adminName})</span>
+                  ) : (
+                    <span>Customer</span>
+                  )}
+                </td>
               </tr>
             );
           })}
